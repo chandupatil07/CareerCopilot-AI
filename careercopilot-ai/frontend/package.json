@@ -1,0 +1,32 @@
+{
+  "_explanation": {
+    "what_is_it": "package.json is the configuration manifest file for Node.js projects, defining metadata, dependencies, and execution scripts.",
+    "why_is_it_needed": "It manages project dependencies, versions, and scripts, allowing npm to install packages and run the application.",
+    "how_does_it_work": "NPM reads this file to install packages listed in 'dependencies' and execute CLI tasks configured in 'scripts'.",
+    "real_world_example": "Every React, Angular, or Node project uses a package.json to orchestrate package versions and start the development environment.",
+    "advantages": "Standardizes package versions, automates environment setup, and simplifies launching build/dev commands via npm scripts.",
+    "limitations": "Does not support native comments; incorrect syntax (like trailing commas) breaks the build system.",
+    "interview_questions": "What is the difference between 'dependencies' and 'devDependencies' in package.json? What does the caret (^) symbol in version numbers mean?",
+    "interview_answers": "dependencies are packages required for the app to run in production, while devDependencies are only needed during development (e.g., bundlers, testing tools). The caret (^) allows npm to install minor or patch upgrades (backward-compatible updates) while keeping the same major version."
+  },
+  "name": "careercopilot-ai-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.22.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.2.11"
+  }
+}

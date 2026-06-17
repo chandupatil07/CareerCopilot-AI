@@ -1,0 +1,205 @@
+/*
+ * File Explanation: index.css
+ * 
+ * 1. What is it?
+ *    index.css is the global stylesheet defining the design system, CSS variables, utility tokens,
+ *    base element defaults, and micro-animations for the application.
+ * 
+ * 2. Why is it needed?
+ *    It serves as the UI/UX foundation, establishing consistent color branding (Dark Blue + White),
+ *    typography styling (Inter + Outfit), and responsive layout resets across all components.
+ * 
+ * 3. How does it work?
+ *    It uses standard browser CSS syntax. Declaring variables inside the `:root` pseudo-class allows
+ *    any component to reference standard styles using `var(--name)`.
+ * 
+ * 4. Real-world example
+ *    Modern frontend architectures use custom CSS property systems to support dynamic dark/light mode
+ *    toggling and centralize styling updates without duplicating colors in 100 different CSS rules.
+ * 
+ * 5. Advantages
+ *    - Native execution by all browsers without preprocessor compilation overhead.
+ *    - Centralizes brand colors, font families, and shadows in one configuration file.
+ *    - Fully compatible with CSS-in-JS and React modular structures.
+ * 
+ * 6. Limitations
+ *    - Lacks scope protection; class names are global unless CSS modules or specific prefixes are used.
+ * 
+ * 7. Interview questions
+ *    - How do CSS Custom Properties (Variables) improve SaaS design system maintainability?
+ *    - What is the box-sizing border-box reset and why is it recommended?
+ * 
+ * 8. Interview answers
+ *    - Answer: CSS variables centralize color, padding, and layout values. If the branding colors
+ *      change, the design team only needs to update the values in the `:root` variables, and the
+ *      entire codebase updates automatically without refactoring classes.
+ *    - Answer: `box-sizing: border-box` changes the CSS box model so that element padding and borders
+ *      are included in the element's total width and height, preventing layout breaks when adding spacing.
+ */
+
+/* ==========================================================================
+   DESIGN SYSTEM VARIABLE TOKENS
+   ========================================================================== */
+:root {
+  /* Brand Palette (Dark Blue + White Theme) */
+  --bg-primary: #0A1128;      /* Deep Midnight Blue background */
+  --bg-secondary: #1C2541;    /* Navy Blue card background */
+  --bg-tertiary: #1E293B;     /* Slate Blue hover panels */
+  --color-accent: #00B4D8;    /* Electric Cyan accent line / path */
+  --color-accent-hover: #90E0EF; /* Light soft cyan hover */
+  --text-primary: #FFFFFF;    /* Pure White headings */
+  --text-secondary: #94A3B8;  /* Muted Slate Gray body text */
+  --text-accent: #38BDF8;     /* Bright light blue for highlights */
+  
+  /* Status Colors */
+  --color-success: #10B981;   /* Green */
+  --color-warning: #F59E0B;   /* Amber */
+  --color-danger: #EF4444;    /* Red */
+  --color-info: #3B82F6;      /* Info Blue */
+
+  /* Borders & Shadows */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 16px;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Font Families */
+  --font-headers: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   BASE RESETS
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headers);
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: all 0.2s ease-in-out;
+}
+
+/* ==========================================================================
+   LAYOUT CONTAINERS & SCAFFOLDS
+   ========================================================================== */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1 0 auto;
+  padding: 2.5rem 1.5rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   PREMIUM UTILITY & COMPONENT CLASSES
+   ========================================================================== */
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 180, 216, 0.4);
+}
+
+/* Button UI Components */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-headers);
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: var(--bg-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-hover);
+  color: var(--bg-primary);
+  box-shadow: 0 0 12px rgba(0, 180, 216, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+/* Micro-animations and effects */
+.hover-glow:hover {
+  text-shadow: 0 0 8px rgba(0, 180, 216, 0.6);
+}
+
+/* Responsive Helper Grid */
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

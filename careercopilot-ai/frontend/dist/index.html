@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!--
+    File Explanation: index.html
+
+    1. What is it?
+       index.html is the root HTML entry point document for the React SPA.
+
+    2. Why is it needed?
+       The browser needs an HTML page to render initially. It contains the div root mount point where
+       React injects the Virtual DOM, as well as metadata, title, and external web font stylesheet linkages.
+
+    3. How does it work?
+       Vite treats index.html as the entry point of the app. It scans it for <script type="module"> tags
+       and compiles the referenced JavaScript (src/main.jsx) to dynamically render UI content.
+
+    4. Real-world example
+       Every single-page application (React, Vue, Angular) has a single root index.html containing a 
+       single div container like <div id="root"></div>.
+
+    5. Advantages
+       - Keeps the initial page load lightweight.
+       - Clean separation between structural document headers (head) and application layout logic (body).
+       - Easy injection of standard SEO meta tags and CDNs.
+
+    6. Limitations
+       - Since it is a client-side rendered SPA, the initial index.html contains empty page body elements,
+         which simple search engines might crawl before the JavaScript loads.
+
+    7. Interview questions
+       - Why does Vite place index.html in the project root rather than a public/ folder?
+       - What is the purpose of `<div id="root"></div>`?
+
+    8. Interview answers
+       - Answer: Vite treats index.html as a source code file and the entry point of the module graph.
+         This allows it to resolve relative paths to JavaScript files and style assets directly.
+       - Answer: It is the DOM element container where the React Virtual DOM mounts its component tree.
+         React uses `ReactDOM.createRoot` to bind to this specific DOM node.
+  -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CareerCopilot AI</title>
+    
+    <!-- Google Fonts: Inter (Body) & Outfit (Headers/Accents) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/assets/index-CrzHBH2h.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-LMlyIDvu.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
