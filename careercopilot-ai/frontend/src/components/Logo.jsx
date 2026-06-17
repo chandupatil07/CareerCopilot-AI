@@ -1,142 +1,135 @@
 /**
- * File Explanation: Logo.jsx
+ * File Explanation: Logo.jsx (Redesigned)
  * 
  * 1. What is it?
- *    Logo.jsx is a React component that renders the custom visual SVG branding logo for CareerCopilot AI.
+ *    Logo.jsx is the branding vector logo component. It draws a modern, scalable SVG icon and company name.
  * 
  * 2. Why is it needed?
- *    A professional SaaS startup needs a unique, recognizable logo. Making the logo a React component
- *    allows us to render it as a scalable vector graphic (SVG) anywhere in the application (Headers, Footers, Loaders)
- *    without quality loss or needing image file downloads.
+ *    A modern SaaS startup needs a premium visual brand mark. This redesigned logo represents career growth (upward slope),
+ *    navigation (compass ticks), direction (diagonal arrow), and AI (interconnected hexagon circuit nodes).
  * 
  * 3. How does it work?
- *    It uses standard React functional component style. It returns an SVG structure containing a compass outer circle,
- *    an ascending career path arrow, and interconnected circular nodes representing AI computing circuits.
+ *    It renders an inline `<svg>` containing vector path elements. It takes props (`width`, `height`, `showText`)
+ *    to easily scale it in public headers, footers, or dashboard navigation menus.
  * 
  * 4. Real-world example
- *    Companies like Stripe and Airbnb render their logos as responsive inline SVG components to ensure
- *    pixel-perfect clarity across all display types (Retina screens, mobile screens, 4K monitors).
+ *    Modern AI platforms (like OpenAI, Scale AI, or Synthesia) use geometric SVGs representing structures, grids, or nodes.
  * 
  * 5. Advantages
- *    - Natively scalable (SVG format).
- *    - Responsive (supports width, height, and color customization via props).
- *    - Zero HTTP requests (compiled directly inside the bundle).
+ *    - Fully responsive and vector-clear at any scale.
+ *    - Uses design system CSS variables directly for color themes, ensuring dark-mode compatibility.
+ *    - Renders instantly without making extra HTTP requests.
  * 
  * 6. Limitations
- *    - Changing complex shapes requires editing raw SVG path coordinates in code.
+ *    - Tweaking graphic paths requires coordinates refactoring, which must be done manually in code.
  * 
  * 7. Interview questions
- *    - Why use inline SVGs inside React components instead of standard `<img>` tags pointing to PNG files?
- *    - How do you pass custom styling properties to an SVG component in React?
+ *    - What are the rendering performance differences between custom SVGs and rasterized image files (PNG/WebP)?
+ *    - How do you construct accessible SVGs for screen readers?
  * 
  * 8. Interview answers
- *    - Answer: Inline SVGs load instantly with the bundle (zero extra server requests), are crisp at any resolution,
- *      and allow dynamic CSS hover styling and property customization that standard image tags cannot do.
- *    - Answer: By declaring parameters (like `width`, `height`, or `className`) as input properties (props) in the
- *      component definition and mapping them to the `<svg>` tag.
+ *    - Answer: SVGs are parsed by the browser DOM and rendered as vectors (mathematical equations), making them
+ *      crisp at all screen sizes and smaller in file size. Rasterized images download raw pixel grids, which can blur
+ *      when expanded and require separate HTTP fetch requests.
+ *    - Answer: By adding a `<title>` tag inside the `<svg>` container and assigning `role="img"` and `aria-label` properties.
  */
 
 import React from 'react';
 
 function Logo(props) {
-  const width = props.width || '32';
-  const height = props.height || '32';
+  const width = props.width || '36';
+  const height = props.height || '36';
   const showText = props.showText !== undefined ? props.showText : true;
 
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
       <svg
         width={width}
         height={height}
         viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ overflow: 'visible' }}
+        style={{ overflow: 'visible', filter: 'drop-shadow(0 0 8px rgba(56, 189, 248, 0.25))' }}
+        role="img"
+        aria-label="CareerCopilot AI Logo"
       >
-        {/* COMPASS OUTER RING */}
-        <circle 
-          cx="50" 
-          cy="50" 
-          r="42" 
-          stroke="var(--color-accent)" 
+        <title>CareerCopilot AI Logo</title>
+
+        {/* OUTER TECH HEXAGON (AI / Tech Foundation) */}
+        <polygon 
+          points="50,5 90,28 90,72 50,95 10,72 10,28" 
+          stroke="url(#hexagonGradient)" 
           strokeWidth="3.5" 
-          strokeDasharray="4 4" 
+          strokeLinejoin="round"
+          opacity="0.85"
         />
-        <circle 
-          cx="50" 
-          cy="50" 
-          r="46" 
+        
+        {/* INNER DOTTED GRAPH GUIDE (Guidance/Compass) */}
+        <polygon 
+          points="50,15 80,32 80,68 50,85 20,68 20,32" 
           stroke="var(--color-accent)" 
-          strokeWidth="1.5" 
-          opacity="0.5" 
-        />
-
-        {/* COMPASS DIRECTIONAL TICKS */}
-        <line x1="50" y1="4" x2="50" y2="12" stroke="var(--color-accent)" strokeWidth="3" />
-        <line x1="50" y1="88" x2="50" y2="96" stroke="var(--color-accent)" strokeWidth="2" opacity="0.7" />
-        <line x1="4" x2="12" y1="50" y2="50" stroke="var(--color-accent)" strokeWidth="2" opacity="0.7" />
-        <line x1="88" x2="96" y1="50" y2="50" stroke="var(--color-accent)" strokeWidth="2" opacity="0.7" />
-
-        {/* AI CIRCUIT INTERCONNECTIONS */}
-        {/* Circuit line 1 */}
-        <path 
-          d="M 22,78 L 40,60 L 40,40" 
-          stroke="var(--color-accent)" 
-          strokeWidth="2.5" 
+          strokeWidth="1" 
+          strokeDasharray="3 3"
           opacity="0.4"
-          strokeLinecap="round" 
-        />
-        {/* Circuit line 2 */}
-        <path 
-          d="M 78,22 L 60,40 L 60,60" 
-          stroke="var(--color-accent)" 
-          strokeWidth="2.5" 
-          opacity="0.4"
-          strokeLinecap="round" 
         />
 
-        {/* ASCENDING CAREER PATH (DIAGONAL ARROW) */}
+        {/* COMPASS COMPONENT INNER AXIS (Direction) */}
+        <circle cx="50" cy="50" r="12" stroke="var(--color-accent-purple)" strokeWidth="1.5" opacity="0.6" />
+
+        {/* AI CIRCUIT INTERCONNECTIONS (Intelligence) */}
+        <path d="M 20,68 L 38,50 L 38,38" stroke="var(--color-accent)" strokeWidth="2" opacity="0.7" strokeLinecap="round" />
+        <path d="M 80,32 L 62,50 L 62,62" stroke="var(--color-accent-purple)" strokeWidth="2" opacity="0.7" strokeLinecap="round" />
+
+        {/* ASCENDING GROWTH CHART ARROW (Career growth & Path) */}
         <path 
-          d="M 18,82 L 80,20" 
-          stroke="#FFFFFF" 
-          strokeWidth="5" 
+          d="M 25,75 L 75,25" 
+          stroke="url(#arrowGradient)" 
+          strokeWidth="5.5" 
           strokeLinecap="round" 
         />
-        {/* Arrow head pointing top right */}
         <path 
-          d="M 64,20 L 80,20 L 80,36" 
-          stroke="#FFFFFF" 
-          strokeWidth="5" 
+          d="M 58,25 L 75,25 L 75,42" 
+          stroke="var(--color-accent)" 
+          strokeWidth="5.5" 
           strokeLinecap="round" 
           strokeLinejoin="round" 
         />
 
-        {/* AI CIRCUIT NODES (GLOWING DOTS) */}
-        {/* Node 1 - Source */}
-        <circle cx="22" cy="78" r="5" fill="var(--color-accent)" />
-        <circle cx="22" cy="78" r="8" fill="var(--color-accent)" opacity="0.4" />
-        
-        {/* Node 2 - Intersection */}
-        <circle cx="40" cy="60" r="4" fill="#FFFFFF" />
-        
-        {/* Node 3 - Mid Path */}
-        <circle cx="60" cy="40" r="4" fill="#FFFFFF" />
+        {/* INTERCONNECTED GLOWING CIRCUIT NODES */}
+        <circle cx="20" cy="68" r="4.5" fill="var(--color-accent)" />
+        <circle cx="38" cy="50" r="3" fill="#FFFFFF" />
+        <circle cx="62" cy="50" r="3" fill="#FFFFFF" />
+        <circle cx="80" cy="32" r="4.5" fill="var(--color-accent-purple)" />
+        <circle cx="50" cy="50" r="5" fill="var(--text-primary)" />
+        <circle cx="50" cy="50" r="8" fill="var(--text-primary)" opacity="0.25" />
 
-        {/* Node 4 - Destination Arrow base */}
-        <circle cx="78" cy="22" r="5" fill="var(--color-accent)" />
-        <circle cx="78" cy="22" r="8" fill="var(--color-accent)" opacity="0.4" />
+        {/* GRADIENTS DEFINITION */}
+        <defs>
+          <linearGradient id="hexagonGradient" x1="10" y1="5" x2="90" y2="95" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="var(--color-accent)" />
+            <stop offset="100%" stopColor="var(--color-accent-purple)" />
+          </linearGradient>
+          <linearGradient id="arrowGradient" x1="25" y1="75" x2="75" y2="25" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="var(--color-accent-purple)" />
+            <stop offset="100%" stopColor="var(--color-accent)" />
+          </linearGradient>
+        </defs>
       </svg>
+
       {showText && (
         <span 
           style={{ 
             fontFamily: 'var(--font-headers)', 
             fontWeight: 800, 
-            fontSize: '1.25rem', 
+            fontSize: '1.35rem', 
             color: 'var(--text-primary)',
-            letterSpacing: '0.5px'
+            letterSpacing: '0.25px',
+            background: 'linear-gradient(90deg, #FFFFFF 60%, var(--color-accent) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
           }}
         >
-          CareerCopilot <span style={{ color: 'var(--color-accent)' }}>AI</span>
+          CareerCopilot<span style={{ color: 'var(--color-accent)', WebkitTextFillColor: 'initial' }}>AI</span>
         </span>
       )}
     </div>

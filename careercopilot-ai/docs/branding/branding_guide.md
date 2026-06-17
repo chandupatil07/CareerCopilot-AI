@@ -1,7 +1,7 @@
-# File Explanation: branding_guide.md
+# File Explanation: branding_guide.md (Upgraded)
 
 ## 1. What is it?
-`branding_guide.md` is a design specification document that details the corporate visual identity of CareerCopilot AI.
+`branding_guide.md` is a design spec sheet that details the corporate visual identity, custom colors, typography hierarchies, and SVG logo parameters for CareerCopilot AI.
 
 ## 2. Why is it needed?
 A professional SaaS platform needs consistent branding. This guide ensures that developers, designers, and marketers use the correct hex codes, font scales, and logo guidelines to build a unified interface.
@@ -30,30 +30,35 @@ Tech giants like Google, Material Design, and Stripe maintain public branding gu
 
 ---
 
-# Branding Guide: CareerCopilot AI
+# Corporate Branding & Style Guide
 
-## 1. Color Palette
-The brand color scheme communicates intelligence, stability, and professionalism.
+This document captures the design tokens and visual principles implemented inside the CareerCopilot AI codebase.
 
-- **Primary Background (Midnight Blue):** `#0A1128`
-  * Represents deep technology, professionalism, and provides a comfortable dark workspace.
-- **Card/Scaffolding Background (Navy Blue):** `#1C2541`
-  * Used for panels, header backgrounds, and form groupings.
-- **Accent Highlight (Electric Cyan):** `#00B4D8`
-  * Represents the AI circuit, direction, compass path, and active hover states.
+## 1. Color System
+We transitioned from a flat dark blue theme to a space-tech navy and dual-accent layout to inspire feelings of smart technology, intelligence, and stability.
+
+- **Primary Canvas Background (Midnight Space):** `#050816`
+  * Deep dark space, optimized for long viewing sessions without eye fatigue.
+- **Scaffolding/Panel Background (Navy Blue):** `#0B1124`
+  * Applied to card items, navigation bars, headers, and footer blocks.
+- **Accent Primary (Electric Cyan):** `#38BDF8`
+  * Represents directional progress (the compass arrow) and active hover outlines.
+- **Accent Highlight (Indigo Violet):** `#8B5CF6`
+  * Denotes processing logic, machine learning nodes, and glowing action alerts.
 - **Text Color (Pure White):** `#FFFFFF`
-  * Standard readable body text.
-- **Muted Subtext (Slate Gray/Blue):** `#94A3B8`
-  * Used for side labels, subheadings, and captions.
+  * Default readable headings.
+- **Muted Descriptions (Slate Gray):** `#94A3B8`
+  * Secondary body text and subtitles.
 
-## 2. Typography
-We use two Google Fonts imported via the entry HTML file:
-- **Headers & Accent Text:** `Outfit` (sans-serif) - a modern, round geometric typeface.
-- **Body Text:** `Inter` (sans-serif) - highly legible and optimized for screen reading.
+## 2. Typography Rules
+- **Display Header Scale:** `Outfit` (sans-serif)
+  * A geometric typeface with modern rounded curves, setting an inviting and sophisticated tone.
+- **Body & Controls Scale:** `Inter` (sans-serif)
+  * The industry standard for digital screen readability, guaranteeing legibility at small font sizes inside data tables.
 
-## 3. Logo Concept
-The Logo component draws a combination of:
-- **Compass Circle:** Indicating direction and AI career guidance.
-- **Career Path:** A rising diagonal line crossing the compass.
-- **AI Circuit:** Circuit dots connecting the paths to represent smart, automated decisions.
-- **Logo Code:** Represented as a React component using inline SVGs (`src/components/Logo.jsx`).
+## 3. Brand Logo Redesign
+The visual logo combines:
+1. **Hexagon Boundary:** Represents structural security and technological solidity.
+2. **Diagonal Arrow:** Symbolizes upward career growth and target acceleration.
+3. **Compass Axes:** Denotes smart navigational guidance.
+4. **Interconnected Nodes:** Illustrates neural networking and artificial intelligence computation.

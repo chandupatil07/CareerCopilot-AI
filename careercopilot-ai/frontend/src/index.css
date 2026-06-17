@@ -1,78 +1,84 @@
 /*
- * File Explanation: index.css
+ * File Explanation: index.css (Upgraded UI/UX System)
  * 
  * 1. What is it?
- *    index.css is the global stylesheet defining the design system, CSS variables, utility tokens,
- *    base element defaults, and micro-animations for the application.
+ *    index.css holds the upgraded visual core design system, colors, components, global resets,
+ *    and SaaS styling properties for CareerCopilot AI.
  * 
  * 2. Why is it needed?
- *    It serves as the UI/UX foundation, establishing consistent color branding (Dark Blue + White),
- *    typography styling (Inter + Outfit), and responsive layout resets across all components.
+ *    It establishes a professional visual brand identity (Midnight Blue + Electric Cyan + Indigo Accent)
+ *    and supplies helper classes (for buttons, input grids, elevations, and keyframe animations) to
+ *    give the app a premium look and feel.
  * 
  * 3. How does it work?
- *    It uses standard browser CSS syntax. Declaring variables inside the `:root` pseudo-class allows
- *    any component to reference standard styles using `var(--name)`.
+ *    It uses custom CSS properties (variables) inside `:root` to map colors dynamically, and binds
+ *    custom keyframes (like `fadeIn`, `slideUp`) to CSS animation classes for micro-animations.
  * 
  * 4. Real-world example
- *    Modern frontend architectures use custom CSS property systems to support dynamic dark/light mode
- *    toggling and centralize styling updates without duplicating colors in 100 different CSS rules.
+ *    Enterprise SaaS dashboards (like Vercel, Linear, or OpenAI) use custom CSS utility variables
+ *    to align their interfaces and manage modern dark modes.
  * 
  * 5. Advantages
- *    - Native execution by all browsers without preprocessor compilation overhead.
- *    - Centralizes brand colors, font families, and shadows in one configuration file.
- *    - Fully compatible with CSS-in-JS and React modular structures.
+ *    - Centralizes theme styling in a single, lightweight browser-native file.
+ *    - Clean responsive grids ensure layout compatibility from mobile viewports to desktop monitors.
+ *    - Keyframe animations create a lively user experience without bloated Javascript motion libraries.
  * 
  * 6. Limitations
- *    - Lacks scope protection; class names are global unless CSS modules or specific prefixes are used.
+ *    - CSS properties are global, which requires strict class naming conventions to prevent conflicts.
  * 
  * 7. Interview questions
- *    - How do CSS Custom Properties (Variables) improve SaaS design system maintainability?
- *    - What is the box-sizing border-box reset and why is it recommended?
+ *    - What is a CSS keyframe animation and how is it bound to a component class?
+ *    - Explain how 'backdrop-filter' creates glassmorphic effects in modern CSS.
  * 
  * 8. Interview answers
- *    - Answer: CSS variables centralize color, padding, and layout values. If the branding colors
- *      change, the design team only needs to update the values in the `:root` variables, and the
- *      entire codebase updates automatically without refactoring classes.
- *    - Answer: `box-sizing: border-box` changes the CSS box model so that element padding and borders
- *      are included in the element's total width and height, preventing layout breaks when adding spacing.
+ *    - Answer: A keyframe (`@keyframes`) defines the styles an element will have at different points
+ *      during an animation cycle. It is bound to a component using the `animation` property (e.g.
+ *      `animation: slideUp 0.6s ease-out forwards`).
+ *    - Answer: The `backdrop-filter` property applies graphical effects (like blurring or color-shifting)
+ *      to the area *behind* an element, creating a modern "frosted glass" translucent layout.
  */
 
 /* ==========================================================================
    DESIGN SYSTEM VARIABLE TOKENS
    ========================================================================== */
 :root {
-  /* Brand Palette (Dark Blue + White Theme) */
-  --bg-primary: #0A1128;      /* Deep Midnight Blue background */
-  --bg-secondary: #1C2541;    /* Navy Blue card background */
-  --bg-tertiary: #1E293B;     /* Slate Blue hover panels */
-  --color-accent: #00B4D8;    /* Electric Cyan accent line / path */
-  --color-accent-hover: #90E0EF; /* Light soft cyan hover */
-  --text-primary: #FFFFFF;    /* Pure White headings */
-  --text-secondary: #94A3B8;  /* Muted Slate Gray body text */
-  --text-accent: #38BDF8;     /* Bright light blue for highlights */
+  /* Brand Palette (Midnight Space + Cyan & Indigo Accents) */
+  --bg-primary: #050816;        /* Deep space midnight base */
+  --bg-secondary: #0B1124;      /* Navy Blue card scaffolding */
+  --bg-tertiary: #131B35;       /* Slate Blue active/hover cards */
+  --color-accent: #38BDF8;      /* Electric Cyan (Career path arrow) */
+  --color-accent-purple: #8B5CF6; /* Indigo/Violet (AI processing nodes) */
+  --color-accent-glow: rgba(56, 189, 248, 0.15);
+  --color-purple-glow: rgba(139, 92, 246, 0.15);
+  
+  /* Typography Colors */
+  --text-primary: #FFFFFF;      /* Primary headers */
+  --text-secondary: #94A3B8;    /* Muted text description */
+  --text-muted: #64748B;       /* Labels and disabled states */
   
   /* Status Colors */
-  --color-success: #10B981;   /* Green */
-  --color-warning: #F59E0B;   /* Amber */
-  --color-danger: #EF4444;    /* Red */
-  --color-info: #3B82F6;      /* Info Blue */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-info: #0ea5e9;
 
   /* Borders & Shadows */
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 10px;
   --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
   --border-color: rgba(255, 255, 255, 0.08);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --border-color-hover: rgba(56, 189, 248, 0.25);
+  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.15);
+  --shadow-glow-purple: 0 0 20px rgba(139, 92, 246, 0.15);
   
-  /* Font Families */
-  --font-headers: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Typography Scales */
+  --font-headers: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ==========================================================================
-   BASE RESETS
+   BASE RESETS & ELEMENT STYLES
    ========================================================================== */
 * {
   box-sizing: border-box;
@@ -94,18 +100,18 @@ html, body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-headers);
   color: var(--text-primary);
-  font-weight: 600;
-  line-height: 1.2;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 a {
   color: var(--color-accent);
   text-decoration: none;
-  transition: color 0.2s ease-in-out;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 a:hover {
-  color: var(--color-accent-hover);
+  color: var(--text-primary);
 }
 
 button {
@@ -113,11 +119,57 @@ button {
   border: none;
   background: none;
   font-family: inherit;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ==========================================================================
-   LAYOUT CONTAINERS & SCAFFOLDS
+   GLOBAL ANIMATIONS (FEEL ALIVE)
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Staggered Delay Utilities */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
+/* ==========================================================================
+   LAYOUT SCAFFOLDING & RESPONSIVE GRID
    ========================================================================== */
 .app-container {
   display: flex;
@@ -127,51 +179,112 @@ button {
 
 .main-content {
   flex: 1 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 3rem 1.5rem;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
 }
 
+/* Responsive Grids */
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 768px) {
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.grid-2, .grid-3, .grid-4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
 /* ==========================================================================
-   PREMIUM UTILITY & COMPONENT CLASSES
+   PREMIUM REUSABLE COMPONENTS
    ========================================================================== */
+
+/* 1. Cards (Glassmorphism & Interactive Hover Elevation) */
 .card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
+/* Accent Card Borders */
+.card-accent-cyan::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent), transparent);
+}
+
+.card-accent-purple::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-purple), transparent);
+}
+
+/* Card Hover elevation and glows */
 .card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(0, 180, 216, 0.4);
+  transform: translateY(-6px);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-glow);
 }
 
-/* Button UI Components */
+.card-accent-purple:hover {
+  box-shadow: var(--shadow-glow-purple);
+}
+
+/* 2. Premium Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-headers);
-  font-weight: 500;
-  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  padding: 0.8rem 1.75rem;
   border-radius: var(--border-radius-md);
   text-decoration: none;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
-  background-color: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-purple) 100%);
   color: var(--bg-primary);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+  filter: brightness(1.1);
   color: var(--bg-primary);
-  box-shadow: 0 0 12px rgba(0, 180, 216, 0.5);
-  transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -181,25 +294,69 @@ button {
 }
 
 .btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+/* 3. Reusable Form Inputs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  width: 100%;
+}
+
+.form-label {
+  font-family: var(--font-headers);
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.form-input {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
   background-color: rgba(255, 255, 255, 0.05);
-  border-color: var(--text-primary);
-  transform: translateY(-1px);
 }
 
-/* Micro-animations and effects */
-.hover-glow:hover {
-  text-shadow: 0 0 8px rgba(0, 180, 216, 0.6);
+/* 4. Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-headers);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Responsive Helper Grid */
-.grid-cols-2 {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
+.badge-cyan {
+  background-color: rgba(56, 189, 248, 0.1);
+  color: var(--color-accent);
+  border: 1px solid rgba(56, 189, 248, 0.2);
 }
 
-@media (min-width: 768px) {
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.badge-purple {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: var(--color-accent-purple);
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }

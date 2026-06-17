@@ -1,36 +1,36 @@
-# File Explanation: PROJECT_DECISIONS.md
+# File Explanation: PROJECT_DECISIONS.md (Upgraded)
 
 ## 1. What is it?
-`PROJECT_DECISIONS.md` is an Architectural Decision Record (ADR) file. It documents the key technical decisions made during the project kickoff, detailing the rationale behind chosen technologies and designs.
+`PROJECT_DECISIONS.md` is our Architectural Decision Record (ADR) file. It documents the core technology selections, layout systems, design system components, and architectural considerations chosen during the platform kickoff.
 
 ## 2. Why is it needed?
-As teams scale, developers often ask "Why did we write this in X?" or "Why did we use this pattern?". Documenting architectural tradeoffs avoids repeat debates, preserves historical context, and helps onboard new engineers with confidence.
+As startup development teams grow, preserving the context of stack decisions is vital. Documenting these decisions prevents regression debates, preserves visual branding integrity, and serves as a technical onboarding resource for incoming senior developers.
 
 ## 3. How does it work?
 It acts as a permanent record of decision-making, mapping options, tradeoffs, and finalized selections for easy reference.
 
 ## 4. Real-world example
-Professional engineering teams use ADR directories to document why they migrated from REST to GraphQL, why they picked Postgres over MongoDB, or why they selected Vite over Webpack.
+Enterprise teams utilize ADR sheets to document structural transformations (e.g. migrating from server-rendered HTML templates to client-rendered React SPA platforms, or adopting micro-frontends).
 
 ## 5. Advantages
-- **Reduces Cognitive Overhead:** No need to re-verify stack decisions.
-- **Architectural Traceability:** Explains the design decisions to future senior engineers or external reviewers.
-- **Historical Accuracy:** Captures the constraints present at the moment the decision was made.
+- **Onboarding Alignment:** Simplifies junior engineering setup.
+- **Reduces Cognitive Overhead:** Records architectural options and tradeoffs.
+- **Visual Spec Mapping:** Records style design decisions alongside technical rules.
 
 ## 6. Limitations
-- **Maintenance Discipline:** Developers must actively record new decisions as the stack grows.
+- **Maintenance Discipline:** Must be updated as features scale and dependencies evolve.
 
 ## 7. Interview questions
-- *What is an ADR (Architectural Decision Record) and how does it help a startup?*
-- *Why might a team choose vanilla CSS variables over TailwindCSS or styled-components?*
+- *What is an ADR (Architectural Decision Record) and how does it help a startup team?*
+- *Why is a nested layout architecture preferred for complex SaaS dashboard portals?*
 
 ## 8. Interview answers
-- *Answer:* An ADR is a document capturing a clean technical decision, its context, alternatives considered, and consequences. In a startup, it prevents "architectural drift," keeping the codebase coherent and focused as new members join.
-- *Answer:* Vanilla CSS variables are standard-compliant, require zero build-time configuration or runtime overhead, avoid dependency lock-in, and allow styling to scale natively in simple web components.
+- *Answer:* An ADR is a document that captures a key architectural decision, its context, consequences, and alternatives considered. In startups, it guides technical decisions and maintains architectural consistency across sprints.
+- *Answer:* It promotes the DRY (Don't Repeat Yourself) principle. By nesting child pages (Profile, Settings, Applications) inside a parent layout (DashboardLayout), we avoid rebuilding sidebar navigation systems on every page, optimization rendering speeds, and preserve layouts scroll positions.
 
 ---
 
-# Architectural Decision Records (ADR)
+# Architectural Decision Records (ADR) - CareerCopilot AI
 
 ## ADR-001: Selection of React as UI Library
 - **Decision:** Use React 18+ for building the CareerCopilot UI.
@@ -47,12 +47,17 @@ Professional engineering teams use ADR directories to document why they migrated
 - **Rationale:** Allows rapid prototyping of features without the strict compilation requirements of TypeScript, which fits early-stage validation tasks.
 - **Alternatives Considered:** TypeScript (increases initialization overhead; can be migrated to in later stages if type safety becomes a priority).
 
-## ADR-004: Design Theme: Dark Blue + White
-- **Decision:** Select Deep Dark Navy Blue (`#0A1128`) and Pure White/Off-White for typography.
-- **Rationale:** Blue inspires feelings of trust, stability, and career professionalism. Dark Mode reduces eye strain during long career searches.
-- **Alternatives Considered:** Light Mode by default (causes eye fatigue), Red/Green palettes (feels too aggressive for a professional career assistant).
+## ADR-004: Design Theme: Dark Blue + White + Dual Accent (Cyan/Indigo)
+- **Decision:** Select Space Midnight Background (`#050816`), Navy Card background (`#0B1124`), with Electric Cyan (`#38BDF8`) and Indigo Violet (`#8B5CF6`) accent layers.
+- **Rationale:** Blue inspires feelings of trust and career stability. The dark theme minimizes eye fatigue. The addition of Electric Cyan and Indigo violet glow highlights denotes modern machine intelligence (AI Co-pilot theme), making the visual interface feel modern and startup-grade.
+- **Alternatives Considered:** Flat single-blue layout (felt like a template, lacked premium SaaS glow).
 
-## ADR-005: Modular Architecture (Components/Layouts/Routes)
-- **Decision:** Separate the frontend application structure by layouts, pages (routes), and components.
-- **Rationale:** Decoupling layout shells (Header, Navbar, Footer) from individual page views and shared elements (Buttons, Logos) keeps components highly modular and simple to test.
-- **Alternatives Considered:** Flat folder structure (leads to "spaghetti code" folders where codebases grow unmanageable).
+## ADR-005: Modular Architecture & Nested Layout Scaffolds
+- **Decision:** Group page scopes into public marketing layouts (`AppLayout`) and authenticated dashboard environments (`DashboardLayout`) utilizing nested React Router structures.
+- **Rationale:** Separating marketing pages (Hero, FAQ, Testimonials) from operational workspace panels keeps CSS classes isolated, guarantees page load optimization, and secures viewport scroll states.
+- **Alternatives Considered:** Single flat layout directory (causes class pollution and forces unnecessary re-rendering of structural headers on layout swaps).
+
+## ADR-006: Reusable Component System
+- **Decision:** Extract common elements (Logo, Buttons, Inputs, Cards) into reusable React components and CSS classes.
+- **Rationale:** Reusable components ensure consistent styling across the application, speed up development, and simplify maintenance. When a design system updates (e.g. a button border radius changes), it is modified in a single file instead of multiple pages.
+- **Alternatives Considered:** Inline ad-hoc styling on every page (creates bloated code, leads to style discrepancies, and is difficult to refactor).
