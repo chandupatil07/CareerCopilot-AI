@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # File Upload Directory
+    UPLOAD_DIR: str = "uploads"
+
     class Config:
         case_sensitive = True
         env_file = ".env"

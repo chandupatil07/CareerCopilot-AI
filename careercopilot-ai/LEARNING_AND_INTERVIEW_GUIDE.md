@@ -1119,3 +1119,192 @@ Entering an office building. The security guard checks your ID badge (Authentica
 
 ### INTERVIEW ANSWERS
 - *Answer:* IDOR (Insecure Direct Object Reference) occurs when an application exposes a direct reference to a database record (like `DELETE /resumes/12`) without verifying if the authenticated user has permissions to modify that record. It is prevented by verifying that the resource's owner ID matches the current user ID before executing database mutations.
+- *Answer:* IDOR (Insecure Direct Object Reference) occurs when an application exposes a direct reference to a database record (like `DELETE /resumes/12`) without verifying if the authenticated user has permissions to modify that record. It is prevented by verifying that the resource's owner ID matches the current user ID before executing database mutations.
+
+---
+
+## 36. What is Multipart/Form-Data and File Uploads?
+
+### WHAT
+`multipart/form-data` is an HTTP media type used to submit forms containing files, non-ASCII data, and binary payloads.
+
+### WHY
+Standard form encoding (`application/x-www-form-urlencoded`) converts payloads into key-value character strings. This is highly inefficient for uploading large binaries like PDFs or images. `multipart/form-data` allows dividing payloads into separate boundary-demarcated parts, sending file binary streams directly.
+
+### HOW
+When a user uploads a resume, the React app sets the request header `Content-Type: multipart/form-data; boundary=----WebKitFormBoundary...`. The FastAPI router parses this boundary structure, streaming the file contents into temporary file descriptors.
+
+### REAL WORLD EXAMPLE
+Submitting a job application form containing text inputs (name, email) and a file attachment input (resume PDF).
+
+### ADVANTAGES
+- **Binary Friendly:** Transfers files efficiently without conversion overhead (like Base64 encoding which increases payload sizes by 33%).
+- **Multi-part Transfers:** Transmits text inputs and binary files concurrently.
+
+### LIMITATIONS
+- **Complexity:** Requires specialized multipart parsers on the server side (like python-multipart).
+
+### INTERVIEW QUESTIONS
+- *What is multipart/form-data and why is it preferred for file uploads over application/x-www-form-urlencoded?*
+
+### INTERVIEW ANSWERS
+- *Answer:* `multipart/form-data` is an HTTP media type that splits payloads into separate parts using unique boundary strings, transferring file binary streams directly. It is preferred because `application/x-www-form-urlencoded` converts data into key-value character strings, which is highly inefficient and expands binary file sizes.
+
+---
+
+## 37. What are MIME Types?
+
+### WHAT
+A MIME type (Multipurpose Internet Mail Extensions) is a standard identifier indicating the format of a file transmitted over the internet (e.g. `application/pdf`, `image/png`).
+
+### WHY
+Relying solely on file extensions (like checking if the filename ends with `.pdf`) is insecure because an attacker can rename a malicious executable file (like `script.exe` to `script.pdf`) to bypass security filters.
+
+### HOW
+The server checks the `Content-Type` header sent by the client, and can additionally inspect the file's magic bytes (initial bytes on the binary payload) to determine the true MIME type.
+- `if file.content_type != "application/pdf":`
+
+### REAL WORLD EXAMPLE
+A browser receives a file and checks its MIME type. If it is `application/pdf`, it renders it in the built-in PDF viewer. If it is `application/octet-stream`, it downloads it to the disk.
+
+### ADVANTAGES
+- **Security:** Detects renamed malicious files.
+- **Interoperability:** Standardizes format parsing across all OS platforms.
+
+### LIMITATIONS
+- **Spoofing:** Client-sent MIME headers can be spoofed, requiring server-side magic byte inspection libraries (like `python-magic`) for high-security environments.
+
+### INTERVIEW QUESTIONS
+- *Why is validating only the file extension insufficient when implementing secure uploads?*
+
+### INTERVIEW ANSWERS
+- *Answer:* File extensions can be easily modified by renaming files. An attacker can rename a malicious executable (like `virus.exe` to `virus.pdf`) to bypass extension checks. Checking MIME types and inspecting the magic bytes (file signature) guarantees validation of the actual file format.
+
+---
+
+## 38. Local Storage vs. Cloud Object Storage
+
+### WHAT
+- **Local Storage:** Writing files directly to the server's local file system (e.g. SSD/HDD).
+- **Cloud Object Storage:** Saving files in managed, flat object storage buckets (like AWS S3, Google Cloud Storage, or Azure Blob).
+
+### WHY
+Local storage is easy to set up for local development, but scales poorly. If the server crashes or autoscales (creates new instances), local files are lost. Cloud storage provides high durability, availability, and scalable storage.
+
+### HOW
+- Local: `with open(path, "wb") as buffer: shutil.copyfileobj(...)`
+- Cloud S3: Utilizing the `boto3` SDK to stream files to S3 buckets: `s3_client.upload_fileobj(...)`
+
+### REAL WORLD EXAMPLE
+A startup stores uploads in a local `uploads/` directory on their EC2 instance. When they scale to 3 EC2 nodes behind a load balancer, they migrate files to AWS S3 so all nodes can access the same shared files.
+
+### ADVANTAGES
+- **Local Storage:** Fast, simple, and requires no network overhead or cloud accounts during prototyping.
+- **Cloud Storage:** High durability, automatic scaling, CDNs support, and decoupled server state.
+
+### LIMITATIONS
+- **Local Storage:** Hard to scale, lacks redundancy, and files are lost if server instances are terminated.
+- **Cloud Storage:** Requires network requests, introducing latency, and incurs cloud usage costs.
+
+### INTERVIEW QUESTIONS
+- *Why are local files systems avoided for file storage in production cloud environments?*
+- *How would you design a backend service to transition from local file storage to S3?*
+
+### INTERVIEW ANSWERS
+- *Answer:* Production cloud servers are stateless and autoscaled. If a server is terminated or a new instance is created, local files are lost. Local files are also inaccessible to other concurrent nodes behind a load balancer. Managed cloud storage (S3) stores files independently of servers, guaranteeing durability and accessibility.
+- *Answer:* I would create an abstract storage service interface (`StorageService`) exposing methods like `save()`, `read()`, and `delete()`. I'd implement two classes extending this interface: `LocalStorageService` (for local development) and `S3StorageService` (for production). The API routers only call the interface methods, letting us swap storage backends via configuration settings without changing router logic.
+- *Answer:* I would create an abstract storage service interface (`StorageService`) exposing methods like `save()`, `read()`, and `delete()`. I'd implement two classes extending this interface: `LocalStorageService` (for local development) and `S3StorageService` (for production). The API routers only call the interface methods, letting us swap storage backends via configuration settings without changing router logic.
+
+---
+
+## 39. What is Resume Parsing?
+
+### WHAT
+Resume parsing is the process of converting a resume document (like a PDF or Word file) into structured, machine-readable JSON data (e.g. isolating name, email, skills, and work history blocks).
+
+### WHY
+Job seekers upload resumes in unstructured formats (PDF, DOCX). Recruitment platforms need to search, filter, and index candidate coordinates. Manually entering this data is a high friction user experience. Parsing automates metadata ingestion.
+
+### HOW
+By using text extraction libraries (like `pdfplumber`) to convert binary layouts to strings, and running NLP processors (regex, spaCy) to categorize raw lines into profile schemas.
+
+### REAL WORLD EXAMPLE
+Lever or Greenhouse ATS parses an uploaded PDF resume and auto-fills the applicant's name, email, and work history inputs in the application form fields.
+
+### ADVANTAGES
+- **UX Optimization:** Reduces application form drop-offs.
+- **Structured Indexing:** Enables recruiters to search profiles by skills or experience.
+
+### LIMITATIONS
+- **Layout Vulnerability:** Complex double-column layouts, graphics, or tables can scramble the reading sequence of standard text extractors, leading to parsing errors.
+
+### INTERVIEW QUESTIONS
+- *Explain the challenges of parsing multi-column resume layouts.*
+
+### INTERVIEW ANSWERS
+- *Answer:* Multi-column layouts are challenging because PDF documents store text as absolute coordinates on a page rather than continuous flow lines. A basic text extractor reads left-to-right across the page, merging columns horizontally and scrambling the content. Specialized parsers (like `pdfplumber`) must segment coordinate layouts vertically to extract column blocks independently.
+
+---
+
+## 40. Rule-Based Scoring vs. AI-Based Scoring
+
+### WHAT
+- **Rule-Based Scoring:** Evaluating a resume using deterministic algorithms and static criteria (e.g. checking if email exists = +10 points).
+- **AI-Based Scoring:** Evaluating a resume using Large Language Models (LLMs) or neural networks that interpret semantics and match roles dynamically.
+
+### WHY
+Rule-based scoring is transparent, fast, and free, making it ideal for checking structural formatting. AI-based scoring can interpret complex descriptions but is non-deterministic and expensive.
+
+### HOW
+- Rule-based: `score = 0; if email: score += 10; if len(skills) > 5: score += 10`
+- AI-based: `response = openai.ChatCompletion.create(messages=[{"role": "user", "content": f"Score this resume: {text}"}])`
+
+### REAL WORLD EXAMPLE
+An ATS platform uses a rule-based algorithm to check for basic formatting (email, skills list, length), and then calls an LLM to evaluate how well the candidate's experience matches a specific job description.
+
+### ADVANTAGES
+- **Rule-Based:** 100% transparent, instantly reproducible, zero API cost, and zero hallucination risks.
+- **AI-Based:** Captures semantic meaning, synonyms (e.g. matching 'FastAPI' with 'Python Web framework'), and roles context.
+
+### LIMITATIONS
+- **Rule-Based:** Cannot easily understand context or synonyms (e.g., if a candidate writes 'NLP developer' but the rule checks for 'spaCy', it might miss it).
+- **AI-Based:** High API costs, slower execution speeds (5-10 seconds latency), and non-deterministic outputs.
+
+### INTERVIEW QUESTIONS
+- *Why is a rule-based ATS scoring system preferred over LLM scoring for initial structural audits?*
+
+### INTERVIEW ANSWERS
+- *Answer:* Rule-based systems are deterministic, transparent, and execute instantly with zero runtime API cost. They guarantee that the same resume always gets the same score, providing a predictable debugging interface for developers and a transparent feedback loop for job seekers.
+
+---
+
+## 41. NLP Basics, Regex, and spaCy in Parsing
+
+### WHAT
+- **NLP (Natural Language Processing):** The field of AI focused on making computers understand human languages.
+- **Regex (Regular Expressions):** Match patterns used to extract structured strings (like emails and phone numbers) from text.
+- **spaCy:** A fast, industrial-strength library in Python designed for advanced NLP tasks like Tokenization and Named Entity Recognition (NER).
+
+### WHY
+Raw text is unstructured. Using simple string splits to find names, emails, or universities is highly error-prone. Combining regex for structured strings and spaCy for linguistic tokens enables accurate information extraction.
+
+### HOW
+- Regex: `re.search(r'[\w\.-]+@[\w\.-]+\.\w+', text)` extracts email addresses.
+- spaCy: `doc = nlp(text); for ent in doc.ents: if ent.label_ == "ORG": ...` extracts organization names.
+
+### REAL WORLD EXAMPLE
+A resume parser uses Regex to extract phone numbers and email coordinates, and uses spaCy's Named Entity Recognition to identify university names (labeled as `ORG`) and candidate names (labeled as `PERSON`).
+
+### ADVANTAGES
+- **Accuracy:** Pattern matching extracts structured data with high precision.
+- **Tokenization:** spaCy handles linguistic details (like base words, parts of speech) automatically.
+
+### LIMITATIONS
+- **Dictionary Limits:** Regex and keyword dictionaries miss elements not explicitly configured.
+- **Model Overhead:** Loading spaCy neural network models consumes significant memory (hundreds of MBs) and slows down startup times.
+
+### INTERVIEW QUESTIONS
+- *How does Named Entity Recognition (NER) differ from Regular Expressions (Regex) in text parsing?*
+
+### INTERVIEW ANSWERS
+- *Answer:* Regex matches static string patterns (e.g. email structures containing `@` and domains). NER uses machine learning models to identify text categories based on contextual meaning (e.g. recognizing 'Stanford University' as an organization (`ORG`) and 'Jane Doe' as a person (`PERSON`) regardless of where they appear in the text).

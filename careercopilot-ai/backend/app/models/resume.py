@@ -18,3 +18,5 @@ class Resume(Base):
 
     # Relationships
     user = relationship("User", back_populates="resumes")
+    analysis = relationship("ResumeAnalysis", back_populates="resume", uselist=False, cascade="all, delete-orphan")
+

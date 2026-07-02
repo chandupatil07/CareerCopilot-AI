@@ -15,6 +15,7 @@ from app.core.errors import (
 from app.api.v1.endpoints.health import router as health_router
 from app.api.v1.endpoints.auth import router as auth_router
 from app.api.v1.endpoints.users import router as users_router
+from app.api.v1.endpoints.resume import router as resume_router
 
 # Configure system-wide basic logging details
 logging.basicConfig(
@@ -74,6 +75,7 @@ async def audit_requests_middleware(request: Request, call_next):
 app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR + "/auth", tags=["Authentication"])
 app.include_router(users_router, prefix=settings.API_V1_STR + "/users", tags=["Users"])
+app.include_router(resume_router, prefix=settings.API_V1_STR + "/resumes", tags=["Resumes"])
 
 @app.get("/", include_in_schema=False)
 def get_root():

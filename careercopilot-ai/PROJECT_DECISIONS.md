@@ -125,5 +125,37 @@
 - **Rationale:** Allows local development, test suites, and compilation checks to run cleanly without forcing developers to configure local variables upfront, while invalidating active logins on server restarts to prevent security holes.
 - **Alternatives Considered:** Failing startup immediately when variables are missing (degrades local developer experience).
 
+## ADR-026: Local Disk Storage with User-ID Partitioning
+- **Decision:** Store uploaded resumes locally in development under a directory partitioned by User ID (e.g. `uploads/{user_id}/resume_v{version}.pdf`).
+- **Rationale:** Keeps files isolated on disk, prevents version namespace collisions, and mirrors folder hierarchies used in cloud bucket architectures.
+- **Alternatives Considered:** Flat storage layouts without partitioning (causes naming conflicts and scalability bottlenecks).
+
+## ADR-027: Strict PDF File Upload Validations
+- **Decision:** Restrict resume uploads strictly to PDF formats (file extension `.pdf` and MIME type `application/pdf`) and enforce a maximum file size limit of 10MB.
+- **Rationale:** Minimizes security risks (like executable uploads or cross-site scripting payload injection) and ensures high data consistency before running ATS parsing operations.
+- **Alternatives Considered:** Allowing DOCX/images directly (increases security risks and requires more complex server-side converters).
+
+## ADR-028: S3 Cloud Object Storage Migration Design
+- **Decision:** Structure the local storage service interface (file writes, reads, deletes) so it can be swapped with AWS S3 / Azure Blob Storage cloud providers in production without modifying database schemas.
+- **Rationale:** Decouples core logic from physical storage hardware, simplifying cloud deployment migrations in the future.
+- **Alternatives Considered:** Directly coupling S3 API calls inside routing controllers (violates isolation boundaries).
+
+## ADR-029: Local Rule-Based NLP & Regex Parsing
+- **Decision:** Utilize regex pattern parsers and keyword-dictionary matching via `pdfplumber` to extract resume sections (Education, Skills, Experience, Projects) and contact coordinates locally.
+- **Rationale:** Guarantees instantaneous, zero-cost text parsing that requires no external API connections, maintaining strict user privacy and high processing speeds.
+- **Alternatives Considered:** Calling remote LLMs (costly, slow, and raises user privacy concerns).
+
+## ADR-030: Transparent ATS Scoring Breakdown
+- **Decision:** Implement a transparent, rule-based mathematical scoring algorithm (0-100 scale: 30% contact completeness, 60% essential sections presence, 10% word density metrics).
+- **Rationale:** Provides job seekers with clear, actionable recommendations and reproducible scores that don't suffer from LLM hallucination inconsistencies.
+- **Alternatives Considered:** Generative AI score audits (non-deterministic and slow).
+
+## ADR-031: Isolated Metadata Database Model
+- **Decision:** Store parsed resume analyses and ATS scores inside a separate, dedicated `resume_analyses` table mapped via `ResumeAnalysis` SQLAlchemy model.
+- **Rationale:** Isolates large parsed text blocks from core transactional search queries on resumes, optimizing database search and read operations.
+- **Alternatives Considered:** Storing parsed data as bloated text fields inside the `resumes` table (degrades search performance).
+
+
+
 
 

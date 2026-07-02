@@ -318,6 +318,84 @@ Decomposing complex views into highly focused, reusable components provides seve
 - **Lifecycle Management:** For a database session dependency (`db: Session = Depends(get_db)`), FastAPI instantiates the connection, yields it to the router, and closes it when the HTTP request finishes.
 - **Clean Code:** Consolidates common tasks (like token parsing, database connection management, and credential checks) into reusable helper functions, preventing duplicate authentication code across endpoints.
 
+---
+
+## 22. Secure File Validation: MIME Types and Magic Bytes
+
+### Question
+*How do you prevent malicious files (e.g., executable scripts disguised as PDFs) from being uploaded to a web server, and why is checking file extensions alone insufficient?*
+
+### Answer
+- **Extension Insufficiency:** An attacker can easily bypass extension checks by renaming a file (e.g., renaming `malicious.py` to `malicious.pdf`).
+- **MIME Validation:** We inspect the request's `Content-Type` header (should match `application/pdf`).
+- **File Signatures (Magic Bytes):** For high-security environments, the server should read the initial bytes of the uploaded file. PDFs always begin with the magic bytes `%PDF-` (hex values `25 50 44 46`). Checking these bytes guarantees that the file contents match the expected PDF format, regardless of the file extension.
+
+---
+
+## 23. Local File System vs. Cloud Object Storage (AWS S3)
+
+### Question
+*Why is storing user-uploaded files on a local disk considered an anti-pattern in production cloud systems, and how should a file storage service be designed to support scaling?*
+
+### Answer
+- **Anti-Pattern Rationale:**
+  1. **Stateless Servers:** Cloud nodes are ephemeral and autoscaled. If an instance is replaced, all locally stored files are lost.
+  2. **Load Balancing:** If User A uploads a file to Node 1, Node 2 will not have access to it, resulting in 404 errors for load-balanced requests.
+  3. **Storage Exhaustion:** Local disks have fixed capacities and can run out of space under high upload volumes.
+- **Scalable Design:** Implement a decoupled, interface-driven design. API controllers call an abstract `StorageService` interface. During development, a `LocalStorageService` writes to local disk directories. In production, we swap this for a `CloudStorageService` (using AWS S3 or Google Cloud Storage) without changing any database schemas or endpoint business logic.
+
+---
+
+## 24. IDOR Protection in File Download Endpoints
+
+### Question
+*How does an Insecure Direct Object Reference (IDOR) vulnerability manifest in file download endpoints, and how do you protect user files from unauthorized access?*
+
+### Answer
+- **IDOR Manifestation:** Occurs when download endpoints expose sequential IDs (e.g., `/api/v1/resumes/12/download`) and stream the file directly without verifying permissions, allowing users to download other candidates' resumes by changing the ID parameter.
+- **Protection Strategy:**
+  1. Authenticate the request using token guards (`get_current_user`).
+  2. Retrieve the metadata record from the database.
+  3. Verify that the owner ID of the record matches the authenticated user ID (`resume.user_id == current_user.id`). If they mismatch, return an HTTP 403 Forbidden error immediately.
+  4. Only stream the file contents (using FastAPI's `FileResponse`) once authorization checks pass.
+
+---
+
+## 25. Rule-Based vs. Stochastic AI Scoring Systems
+
+### Question
+*What are the core technical tradeoffs between using deterministic rule-based algorithms versus stochastic LLM agents when evaluating and scoring candidate resumes?*
+
+### Answer
+- **Rule-Based Algorithms (Deterministic):**
+  - **Tradeoffs:** Highly predictable, runs with zero API network latency, free to execute, and returns reproducible scores with 0% risk of hallucination. However, it cannot evaluate semantic synonyms (e.g. failing to match 'AI practitioner' with 'Machine Learning engineer' unless explicitly programmed).
+- **LLM Agents (Stochastic):**
+  - **Tradeoffs:** Capable of high-level semantic reasoning, interprets unstructured experience contexts, and evaluates tone and writing style. However, it is non-deterministic (re-running the same query can yield different scores), suffers from slow latency (5-10s network roundtrips), incurs API token costs, and carries data privacy risks if user files are sent to external third-party models.
+
+---
+
+## 26. PDF Coordinate Layouts and Column Segmentation
+
+### Question
+*Why do standard Python text extraction libraries (like PyPDF2) scramble the reading order of multi-column resumes, and how does pdfplumber resolve this issue?*
+
+### Answer
+- **PyPDF2 Scrambling:** PDF documents store text characters mapped to absolute X/Y page coordinates rather than continuous lines of text. Basic extractors scan the page horizontally. On a double-column layout, they read the first line of the left column, then jump directly to read the first line of the right column, merging them into a single scrambled sentence.
+- **pdfplumber Resolution:** `pdfplumber` analyzes character and line coordinate boundaries. It detects vertical whitespace splits and line dividers, segmenting the page into layout boxes, allowing text within columns to be extracted vertically in the correct reading order.
+
+---
+
+## 27. Word Boundary Checking in Regular Expressions
+
+### Question
+*Why are word boundary tags (\b) critical when performing keyword-dictionary matching for skills extraction, and what issues can occur when matching non-word characters?*
+
+### Answer
+- **Word Boundaries (\b):** Prevents substring matches. For example, if searching for the skill `Go`, checking for the substring `go` matches letters inside words like `good`, `government`, or `django`. Applying `\bgo\b` ensures only the isolated word `Go` matches.
+- **Non-Word Characters Issue:** Word boundaries check for changes between word characters (`\w`) and non-word characters (`\W`). If a term begins or ends with a non-word character (like a parenthesis in `(123) 456-7890` or `C++` ending in `+`), applying `\b` can truncate the characters or fail the match entirely, requiring developers to use custom patterns (like `(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}`) to extract characters accurately.
+
+
+
 
 
 
