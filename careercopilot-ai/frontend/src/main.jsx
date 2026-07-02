@@ -38,6 +38,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import mockDb from './services/mockDb';
+
+// Pre-populate mock localStorage tables for frontend SaaS simulation
+mockDb.initialize();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -1,155 +1,132 @@
-/**
- * File Explanation: Settings.jsx
- * 
- * 1. What is it?
- *    Settings.jsx configures operational parameters, AI output configurations, and human validation rules.
- * 
- * 2. Why is it needed?
- *    Early SaaS architectures require preference settings. It houses switches that enforce our critical
- *    "User Control Rule"—ensuring the system never takes external actions without human approval.
- * 
- * 3. How does it work?
- *    It uses checkbox and selection list hooks (`useState`) to toggle configuration values and mock saving updates locally.
- * 
- * 4. Real-world example
- *    Enterprise applications (like Slack settings or Gmail automation panels) provide switches to block automatic
- *    outbounds and enforce review steps.
- * 
- * 5. Advantages
- *    - Enforces security guidelines transparently.
- *    - Reuses styled design system components.
- * 
- * 6. Limitations
- *    - Resetting browser cache resets all preferences back to default configurations.
- * 
- * 7. Interview questions
- *    - What is a Human-in-the-loop (HITL) architectural pattern and why is it important in AI systems?
- * 
- * 8. Interview answers
- *    - Answer: It is a design workflow that inserts a human validation gate before an AI automated action is committed,
- *      ensuring safety, compliance, and guarding against high-risk generative errors (hallucinations).
- */
-
-import React, { useState } from 'react';
+import React from 'react';
+import PageHeader from '../../components/PageHeader';
 
 function Settings() {
-  const [emailConfirm, setEmailConfirm] = useState(true);
-  const [recordConfirm, setRecordConfirm] = useState(true);
-  const [tone, setTone] = useState('Professional');
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = (e) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const gridContainerStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '2rem'
   };
 
   return (
     <div className="animate-fade-in">
-      <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem' }}>Settings & Rules</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Configure AI parameters and audit human confirmation rules.
-        </p>
-      </div>
+      <PageHeader 
+        title="Settings & Preferences" 
+        description="Configure your SaaS environment, account security, and alert integrations." 
+      />
 
-      {saved && (
-        <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.75rem', borderRadius: 'var(--border-radius-md)', marginBottom: '1.5rem', textAlign: 'center' }}>
-          ✅ Settings Updated Successfully
-        </div>
-      )}
-
-      <div className="grid-2">
-        {/* MANDATORY HUMAN CONFIRMATION RULES */}
-        <div className="card card-accent-purple">
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>
-            ⚠️ User Control Rules (Mandatory)
-          </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            Enforce human validation checks before CareerCopilot commits automated actions.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
-              <input 
-                type="checkbox" 
-                checked={emailConfirm} 
-                onChange={(e) => setEmailConfirm(e.target.checked)}
-                style={{ accentColor: 'var(--color-accent)', marginTop: '4px' }}
-              />
-              <div>
-                <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem' }}>Confirm Outbound Mail Generation</span>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Always present a review editor before copying or sending outreach emails.</p>
-              </div>
-            </label>
-
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
-              <input 
-                type="checkbox" 
-                checked={recordConfirm} 
-                onChange={(e) => setRecordConfirm(e.target.checked)}
-                style={{ accentColor: 'var(--color-accent)', marginTop: '4px' }}
-              />
-              <div>
-                <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem' }}>Confirm Status Transitions</span>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Prompt confirmation dialogs before moving job applications between pipeline boards.</p>
-              </div>
-            </label>
-
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', opacity: 0.6 }}>
-              <input 
-                type="checkbox" 
-                checked={true} 
-                disabled
-                style={{ accentColor: 'var(--color-accent)', marginTop: '4px' }}
-              />
-              <div>
-                <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem' }}>Confirm Calendar Integration (Locked)</span>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Mandatory check before linking interviews to external calendar applications.</p>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        {/* AI OUTPUT TONAL SETTINGS */}
+      <div style={gridContainerStyle} className="settings-grid">
+        {/* 1. PROFILE SETTINGS */}
         <div className="card">
           <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            AI Writing Style
+            👤 Profile Settings
           </h3>
-          <form onSubmit={handleSave}>
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="form-group">
-              <label className="form-label" htmlFor="tone">Output Tone</label>
-              <select 
-                id="tone" 
-                className="form-input" 
-                value={tone} 
-                onChange={(e) => setTone(e.target.value)}
-                style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
-              >
-                <option value="Casual">Casual & Friendly</option>
-                <option value="Professional">Standard Corporate</option>
-                <option value="Technical">Senior Engineer Focus</option>
+              <label className="form-label" htmlFor="username">Username</label>
+              <input type="text" id="username" className="form-input" defaultValue="janedoe" placeholder="username" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="avatarUpload">Profile Photo</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '5px' }}>
+                <div style={{ width: '45px', height: '45px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                  👤
+                </div>
+                <button className="btn btn-secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }} disabled>
+                  Upload New Photo
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* 2. APPEARANCE SETTINGS */}
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            🎨 Appearance Settings
+          </h3>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="themeSelect">Interface Theme</label>
+              <select id="themeSelect" className="form-input" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }} defaultValue="midnight">
+                <option value="midnight">Space Midnight (Dark Mode)</option>
+                <option value="light">Classic Light (Locked)</option>
               </select>
             </div>
-            
             <div className="form-group">
-              <label className="form-label" htmlFor="gpt">Model Tier</label>
-              <input 
-                type="text" 
-                id="gpt" 
-                className="form-input" 
-                value="CareerCopilot-Large-Preview" 
-                disabled 
-                style={{ opacity: 0.6 }} 
-              />
+              <label className="form-label">Layout Mode</label>
+              <div style={{ display: 'flex', gap: '15px', marginTop: '4px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input type="radio" name="layoutMode" defaultChecked style={{ accentColor: 'var(--color-accent)' }} />
+                  <span>Standard</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input type="radio" name="layoutMode" style={{ accentColor: 'var(--color-accent)' }} />
+                  <span>Compact</span>
+                </label>
+              </div>
             </div>
+          </form>
+        </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-              Save Configurations
-            </button>
+        {/* 3. NOTIFICATIONS SETTINGS */}
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            🔔 Notifications Preferences
+          </h3>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input type="checkbox" defaultChecked style={{ accentColor: 'var(--color-accent)' }} />
+                <span>Send email alerts for upcoming interviews</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input type="checkbox" defaultChecked style={{ accentColor: 'var(--color-accent)' }} />
+                <span>Show desktop push notifications</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input type="checkbox" defaultChecked style={{ accentColor: 'var(--color-accent)' }} />
+                <span>Remind me about stagnant applications (5+ days)</span>
+              </label>
+            </div>
+          </form>
+        </div>
+
+        {/* 4. SECURITY SETTINGS */}
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            🔒 Security Configurations
+          </h3>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="currentPassword">Current Password</label>
+              <input type="password" id="currentPassword" className="form-input" placeholder="••••••••" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="newPassword">New Password</label>
+              <input type="password" id="newPassword" className="form-input" placeholder="••••••••" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="confirmNewPassword">Confirm New Password</label>
+              <input type="password" id="confirmNewPassword" className="form-input" placeholder="••••••••" />
+            </div>
           </form>
         </div>
       </div>
+
+      <div style={{ marginTop: '2.5rem', textAlign: 'right' }}>
+        <button className="btn btn-primary" style={{ cursor: 'not-allowed', opacity: 0.6 }} title="Save configurations disabled in Module 1.2 mockup">
+          Save Settings (Mocked)
+        </button>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .settings-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

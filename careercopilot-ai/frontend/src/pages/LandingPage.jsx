@@ -31,9 +31,6 @@ import { Link } from 'react-router-dom';
 import heroPreview from '../assets/hero_preview.png';
 import interviewPractice from '../assets/interview_practice.png';
 import userAvatar from '../assets/user_avatar.png';
-import step1UploadProfile from '../assets/step1_upload_profile.png';
-import step2ScanProfile from '../assets/step2_scan_profile.png';
-import step3VerifySend from '../assets/step3_verify_send.png';
 
 function LandingPage() {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -172,72 +169,156 @@ function LandingPage() {
       {/* ==========================================
           2. SYMMETRIC FEATURES GRID (3 columns side-by-side)
           ========================================== */}
+      {/* ==========================================
+          2. SYMMETRIC FEATURES GRID (Unified Feature Hub with Square Cards)
+          ========================================== */}
       <section style={sectionStyle}>
         <div style={sectionHeaderStyle}>
           <span className="badge badge-purple">Modules</span>
           <h2 style={{ fontSize: '2.25rem', marginTop: '0.75rem', marginBottom: '1rem' }}>SaaS Platform Features</h2>
           <p style={{ color: 'var(--text-secondary)' }}>
-            Six comprehensive AI tools built to structure and accelerate your career progression, aligned side-by-side.
+            Six comprehensive AI tools built to structure and accelerate your career progression, organized in a unified grid.
           </p>
         </div>
 
-        <div className="grid-3" style={{ alignItems: 'stretch' }}>
-          {/* Card 1 */}
-          <div className="card card-accent-cyan" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-            <div>
-              <span style={{ fontSize: '2.25rem' }}>📄</span>
-              <h3 style={{ margin: '1rem 0 0.5rem 0' }}>Resume Analysis</h3>
-              <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+        {/* ONE BIG DIV (Unified Hub Container) */}
+        <div style={{
+          background: 'rgba(11, 17, 36, 0.5)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--border-radius-xl)',
+          padding: '2.5rem',
+          boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.02), var(--shadow-glow)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div className="grid-adaptive">
+            {/* Card 1: Resume Analysis */}
+            <div className="card card-accent-cyan" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1.25rem' }}>📄</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Resume Analysis</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                 Score resumes against targeted roles. Spot missing keywords, formatting traps, and soft skill improvements instantly.
               </p>
             </div>
-          </div>
-          {/* Card 2 */}
-          <div className="card card-accent-cyan" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-            <div>
-              <span style={{ fontSize: '2.25rem' }}>📈</span>
-              <h3 style={{ margin: '1rem 0 0.5rem 0' }}>Pipeline Tracking</h3>
-              <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+
+            {/* Card 2: Pipeline Tracking */}
+            <div className="card card-accent-cyan" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1.25rem' }}>📈</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Pipeline Tracking</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                 A visual Kanban pipeline board to log job applications, track interviews, organize contacts, and trigger followups.
               </p>
             </div>
-          </div>
-          {/* Card 3 */}
-          <div className="card card-accent-cyan" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-            <div>
-              <span style={{ fontSize: '2.25rem' }}>💬</span>
-              <h3 style={{ margin: '1rem 0 0.5rem 0' }}>LinkedIn Outbounds</h3>
-              <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+
+            {/* Card 3: LinkedIn Outbounds */}
+            <div className="card card-accent-cyan" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1.25rem' }}>💬</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>LinkedIn Outbounds</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                 Generate connection pitches matching a recruiter's profile, increasing outbound response rates.
               </p>
             </div>
-          </div>
-          {/* Card 4 */}
-          <div className="card card-accent-purple" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-            <div>
-              <span style={{ fontSize: '2.25rem' }}>🤖</span>
-              <h3 style={{ margin: '1rem 0 0.5rem 0' }}>AI Prep Coach</h3>
-              <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+
+            {/* Card 4: AI Prep Coach */}
+            <div className="card card-accent-purple" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1.25rem' }}>🤖</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>AI Prep Coach</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                 Practice mock behaviorals and role-specific coding questions, receiving evaluations and coaching suggestions.
               </p>
             </div>
-          </div>
-          {/* Card 5 */}
-          <div className="card card-accent-purple" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-            <div>
-              <span style={{ fontSize: '2.25rem' }}>✉️</span>
-              <h3 style={{ margin: '1rem 0 0.5rem 0' }}>Cold Email Builder</h3>
-              <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+
+            {/* Card 5: Cold Email Builder */}
+            <div className="card card-accent-purple" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1.25rem' }}>✉️</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Cold Email Builder</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                 Craft hyper-personalized outreach emails targeting hiring managers, matching company cultural tones.
               </p>
             </div>
-          </div>
-          {/* Card 6 */}
-          <div className="card card-accent-purple" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-            <div>
-              <span style={{ fontSize: '2.25rem' }}>🔔</span>
-              <h3 style={{ margin: '1rem 0 0.5rem 0' }}>Smart Reminders</h3>
-              <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+
+            {/* Card 6: Smart Reminders */}
+            <div className="card card-accent-purple" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1.25rem' }}>🔔</div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Smart Reminders</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                 System-generated notifications reminding you to check back on stagnant applications and prep for interviews.
               </p>
             </div>
@@ -246,7 +327,7 @@ function LandingPage() {
       </section>
 
       {/* ==========================================
-          3. HOW IT WORKS SECTION (Symmetric Cards)
+          3. HOW IT WORKS SECTION (Unified Step Hub with Square Cards)
           ========================================== */}
       <section style={sectionStyle}>
         <div style={sectionHeaderStyle}>
@@ -256,65 +337,86 @@ function LandingPage() {
           </p>
         </div>
 
-        <div className="grid-3" style={{ alignItems: 'stretch' }}>
-          {/* Step 1 */}
-          <div className="card" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(56, 189, 248, 0.1)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', fontFamily: 'var(--font-headers)', margin: '0 auto 1.25rem auto' }}>
+        {/* ONE BIG DIV (Unified Steps Container) */}
+        <div style={{
+          background: 'rgba(11, 17, 36, 0.5)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--border-radius-xl)',
+          padding: '2.5rem',
+          boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.02), var(--shadow-glow-purple)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div className="grid-adaptive">
+            {/* Step 1 */}
+            <div className="card" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'rgba(56, 189, 248, 0.1)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 'bold', fontFamily: 'var(--font-headers)', margin: '0 auto 1.25rem auto' }}>
                 1
               </div>
-              <h3>Upload Profile</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem', lineHeight: '1.5' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Upload Profile</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.6' }}>
                 Submit your experience profile and targeted job titles to set up your baseline metrics.
               </p>
             </div>
-            {/* Step Illustration */}
-            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderRadius: 'var(--border-radius-md)', overflow: 'hidden', height: '160px', width: '100%' }}>
-              <img 
-                src={step1UploadProfile} 
-                alt="Upload Profile Illustration" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-md)' }}
-              />
-            </div>
-          </div>
-          {/* Step 2 */}
-          <div className="card" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(139, 92, 246, 0.1)', color: 'var(--color-accent-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', fontFamily: 'var(--font-headers)', margin: '0 auto 1.25rem auto' }}>
+
+            {/* Step 2 */}
+            <div className="card" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'rgba(139, 92, 246, 0.1)', color: 'var(--color-accent-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 'bold', fontFamily: 'var(--font-headers)', margin: '0 auto 1.25rem auto' }}>
                 2
               </div>
-              <h3>Scan & Draft</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem', lineHeight: '1.5' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Scan & Draft</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.6' }}>
                 Analyze skills mismatches and auto-draft outreach templates customized to target listings.
               </p>
             </div>
-            {/* Step Illustration */}
-            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderRadius: 'var(--border-radius-md)', overflow: 'hidden', height: '160px', width: '100%' }}>
-              <img 
-                src={step2ScanProfile} 
-                alt="Scan & Draft Illustration" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-md)' }}
-              />
-            </div>
-          </div>
-          {/* Step 3 */}
-          <div className="card" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div>
-              <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(56, 189, 248, 0.1)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', fontFamily: 'var(--font-headers)', margin: '0 auto 1.25rem auto' }}>
+
+            {/* Step 3 */}
+            <div className="card" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              aspectRatio: '1 / 1', 
+              justifyContent: 'center', 
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--bg-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              height: 'auto',
+              maxWidth: '280px',
+              margin: '0 auto',
+              width: '100%'
+            }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'rgba(56, 189, 248, 0.1)', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 'bold', fontFamily: 'var(--font-headers)', margin: '0 auto 1.25rem auto' }}>
                 3
               </div>
-              <h3>Verify & Send</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem', lineHeight: '1.5' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Verify & Send</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.6' }}>
                 Approve parsed items, customize recommendations, copy templates, and track response updates.
               </p>
-            </div>
-            {/* Step Illustration */}
-            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderRadius: 'var(--border-radius-md)', overflow: 'hidden', height: '160px', width: '100%' }}>
-              <img 
-                src={step3VerifySend} 
-                alt="Verify & Send Illustration" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-md)' }}
-              />
             </div>
           </div>
         </div>

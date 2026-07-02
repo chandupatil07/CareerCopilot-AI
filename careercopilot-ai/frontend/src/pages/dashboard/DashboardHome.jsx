@@ -1,46 +1,15 @@
-/**
- * File Explanation: DashboardHome.jsx
- * 
- * 1. What is it?
- *    DashboardHome.jsx displays the main overview panels, recent logs, and statistics summary cards
- *    inside the authenticated user shell.
- * 
- * 2. Why is it needed?
- *    SaaS users expect an informative primary portal showing operational metrics (e.g. total applications sent,
- *    response rates, and next steps) upon login.
- * 
- * 3. How does it work?
- *    It aggregates mock numbers and rendering layouts inside reusable card grids, using transition classes
- *    to animate card entries.
- * 
- * 4. Real-world example
- *    Dashboards in systems (like LinkedIn Jobs or Indeed) show job matching rates and status metrics
- *    to help users manage their pipeline.
- * 
- * 5. Advantages
- *    - High-fidelity visual cards.
- *    - Summary of all subview activities in one view.
- * 
- * 6. Limitations
- *    - State is static and doesn't update dynamically from a database.
- * 
- * 7. Interview questions
- *    - Why are mock state structures useful during the product prototyping phase?
- * 
- * 8. Interview answers
- *    - Answer: They enable rapid UI testing, allow designers to evaluate visual hierarchies, and establish
- *      agreed-upon API contract shapes before backend developers begin writing code.
- */
-
 import React from 'react';
 import { Link } from 'react-router-dom';
+import StatCard from '../../components/StatCard';
+import PageHeader from '../../components/PageHeader';
 
 function DashboardHome() {
   const stats = [
-    { label: 'Applications Sent', value: '18', icon: '📤', color: 'var(--color-accent)' },
-    { label: 'Interviews Scheduled', value: '4', icon: '🗓️', color: 'var(--color-accent-purple)' },
-    { label: 'Resume Match Score', value: '84%', icon: '🎯', color: '#10B981' },
-    { label: 'Pending Reminders', value: '3', icon: '⏰', color: '#F59E0B' }
+    { label: 'Total Applications', value: '24', icon: '📊', color: 'var(--color-accent)' },
+    { label: 'Active Applications', value: '12', icon: '📈', color: 'var(--color-info)' },
+    { label: 'Interviews Scheduled', value: '3', icon: '🗓️', color: 'var(--color-accent-purple)' },
+    { label: 'Offers Received', value: '1', icon: '🎉', color: 'var(--color-success)' },
+    { label: 'Response Rate', value: '50%', icon: '🎯', color: 'var(--color-warning)' }
   ];
 
   const activities = [
@@ -52,25 +21,21 @@ function DashboardHome() {
 
   return (
     <div className="animate-fade-in">
-      <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem' }}>Welcome Back, Jane</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Here is your AI career search optimization overview for this week.
-        </p>
-      </div>
+      <PageHeader 
+        title="Welcome Back, Jane" 
+        description="Here is your AI career search optimization overview for this week." 
+      />
 
       {/* STATS CARDS GRID */}
-      <div className="grid-4" style={{ marginBottom: '2.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1.25rem', marginBottom: '2.5rem' }} className="stats-grid-5">
         {stats.map((stat, index) => (
-          <div key={index} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <span style={{ fontSize: '2.25rem', backgroundColor: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: 'var(--border-radius-md)' }}>
-              {stat.icon}
-            </span>
-            <div>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{stat.label}</span>
-              <h3 style={{ fontSize: '1.75rem', color: stat.color, fontWeight: 700, marginTop: '2px' }}>{stat.value}</h3>
-            </div>
-          </div>
+          <StatCard 
+            key={index} 
+            label={stat.label} 
+            value={stat.value} 
+            icon={stat.icon} 
+            color={stat.color} 
+          />
         ))}
       </div>
 
@@ -111,6 +76,24 @@ function DashboardHome() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 1200px) {
+          .stats-grid-5 {
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .stats-grid-5 {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .stats-grid-5 {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

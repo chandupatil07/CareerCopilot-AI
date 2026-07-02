@@ -1,152 +1,129 @@
-/**
- * File Explanation: Profile.jsx
- * 
- * 1. What is it?
- *    Profile.jsx manages the career preferences, contact coordinates, and skills records of the user.
- * 
- * 2. Why is it needed?
- *    AI tools require user-profile parameters (e.g. target titles, salary goals, core skills) to generate
- *    tailored messages and mock questions.
- * 
- * 3. How does it work?
- *    It uses controlled React state inputs to show and store editable parameters, outputting skills as list badges.
- * 
- * 4. Real-world example
- *    Portals (like LinkedIn Profile or Indeed Settings) let users set target job configurations to govern recommendation algorithms.
- * 
- * 5. Advantages
- *    - Reuses styled design system input components.
- *    - Clear separation of metadata sections (Contact Info, Target Details, Skill Badges).
- * 
- * 6. Limitations
- *    - Save changes only update local state; edits do not persist across full page reloads.
- * 
- * 7. Interview questions
- *    - How do you implement tag-input systems in React state arrays?
- * 
- * 8. Interview answers
- *    - Answer: By keeping an array of string values in state, appending new entries on input submit,
- *      and filtering out entries when the user clicks a delete action.
- */
-
-import React, { useState } from 'react';
+import React from 'react';
+import PageHeader from '../../components/PageHeader';
 
 function Profile() {
-  const [targetTitle, setTargetTitle] = useState('Senior Software Engineer');
-  const [targetSalary, setTargetSalary] = useState('$160,000 - $190,000');
-  const [skills, setSkills] = useState(['React', 'Node.js', 'Vite', 'JavaScript', 'CSS Grid', 'System Design']);
-  const [newSkill, setNewSkill] = useState('');
-  const [saved, setSaved] = useState(false);
+  const skillsList = ['React', 'Node.js', 'Vite', 'JavaScript', 'CSS Grid', 'System Design', 'Python', 'REST APIs'];
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  };
-
-  const handleAddSkill = (e) => {
-    e.preventDefault();
-    if (newSkill && !skills.includes(newSkill)) {
-      setSkills([...skills, newSkill]);
-      setNewSkill('');
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove) => {
-    setSkills(skills.filter(s => s !== skillToRemove));
+  const gridContainerStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '2rem'
   };
 
   return (
     <div className="animate-fade-in">
-      <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2.25rem', marginBottom: '0.5rem' }}>User Profile</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Configure your targeted coordinates and technical competencies to feed the AI generator.
-        </p>
-      </div>
+      <PageHeader 
+        title="My Profile" 
+        description="Manage your professional metadata, credentials, and portfolio links." 
+      />
 
-      {saved && (
-        <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.75rem', borderRadius: 'var(--border-radius-md)', marginBottom: '1.5rem', textAlign: 'center' }}>
-          ✅ Preferences Saved (Simulated local state update)
-        </div>
-      )}
-
-      <div className="grid-2">
-        {/* Core preferences form */}
+      <div style={gridContainerStyle} className="profile-grid">
+        {/* 1. PERSONAL INFORMATION */}
         <div className="card">
           <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Target Career Parameters
+            👤 Personal Information
           </h3>
-          <form onSubmit={handleSave}>
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="form-group">
-              <label className="form-label" htmlFor="title">Target Job Title</label>
-              <input 
-                type="text" 
-                id="title" 
-                className="form-input" 
-                value={targetTitle} 
-                onChange={(e) => setTargetTitle(e.target.value)} 
-              />
+              <label className="form-label" htmlFor="fullName">Full Name</label>
+              <input type="text" id="fullName" className="form-input" defaultValue="Jane Doe" placeholder="John Doe" />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="salary">Expected Salary Range</label>
-              <input 
-                type="text" 
-                id="salary" 
-                className="form-input" 
-                value={targetSalary} 
-                onChange={(e) => setTargetSalary(e.target.value)} 
-              />
+              <label className="form-label" htmlFor="emailAddress">Email Address</label>
+              <input type="email" id="emailAddress" className="form-input" defaultValue="developer@profile.com" placeholder="john@example.com" />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="exp">Years of Experience</label>
-              <input type="text" id="exp" className="form-input" defaultValue="6 Years" disabled style={{ opacity: 0.6 }} />
+              <label className="form-label" htmlFor="targetTitle">Target Title</label>
+              <input type="text" id="targetTitle" className="form-input" defaultValue="Senior Software Engineer" placeholder="Staff UI Engineer" />
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-              Save Target Preferences
-            </button>
+            <div className="form-group">
+              <label className="form-label" htmlFor="phoneNumber">Phone Number</label>
+              <input type="text" id="phoneNumber" className="form-input" defaultValue="+1 (555) 019-2834" placeholder="+1 (555) 000-0000" />
+            </div>
           </form>
         </div>
 
-        {/* Skill Tag Manager */}
+        {/* 2. EDUCATION */}
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            🎓 Education Credentials
+          </h3>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="degree">Degree & Major</label>
+              <input type="text" id="degree" className="form-input" defaultValue="B.S. in Computer Science" placeholder="B.S. in Computer Science" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="school">Institution / University</label>
+              <input type="text" id="school" className="form-input" defaultValue="Stanford University" placeholder="Stanford University" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="gradYear">Graduation Year</label>
+              <input type="text" id="gradYear" className="form-input" defaultValue="2020" placeholder="2022" />
+            </div>
+          </form>
+        </div>
+
+        {/* 3. TECHNICAL SKILLS */}
         <div className="card">
           <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Technical Competencies
+            ⚡ Core Skills
           </h3>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            These tags are appended to resume optimization scans and interview coach configurations.
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+            Skills checklist used for resume tailoring and mock coaching evaluations.
           </p>
-
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '2rem' }}>
-            {skills.map((skill, index) => (
-              <span key={index} className="badge badge-cyan" style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', padding: '0.4rem 0.8rem' }}>
-                <span>{skill}</span>
-                <button 
-                  onClick={() => handleRemoveSkill(skill)}
-                  style={{ color: 'var(--color-danger)', fontWeight: 'bold', fontSize: '0.85rem' }}
-                >
-                  ×
-                </button>
+            {skillsList.map((skill, index) => (
+              <span key={index} className="badge badge-cyan" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                {skill}
               </span>
             ))}
           </div>
+          <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', gap: '8px' }}>
+            <input type="text" className="form-input" placeholder="Add custom skill..." disabled style={{ opacity: 0.6 }} />
+            <button className="btn btn-secondary" style={{ padding: '0 1.25rem' }} disabled>Add</button>
+          </form>
+        </div>
 
-          <form onSubmit={handleAddSkill} style={{ display: 'flex', gap: '8px' }}>
-            <div className="form-group" style={{ margin: 0 }}>
-              <input 
-                type="text" 
-                className="form-input" 
-                value={newSkill} 
-                onChange={(e) => setNewSkill(e.target.value)} 
-                placeholder="Add skill (e.g. Node.js)" 
-              />
+        {/* 4. PROFESSIONAL LINKS */}
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            🔗 Professional Links
+          </h3>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="githubLink">GitHub Profile</label>
+              <input type="url" id="githubLink" className="form-input" defaultValue="https://github.com/janedoe" placeholder="https://github.com/username" />
             </div>
-            <button type="submit" className="btn btn-secondary" style={{ padding: '0.75rem 1.25rem' }}>
-              Add
-            </button>
+            <div className="form-group">
+              <label className="form-label" htmlFor="linkedinLink">LinkedIn Profile</label>
+              <input type="url" id="linkedinLink" className="form-input" defaultValue="https://linkedin.com/in/janedoe" placeholder="https://linkedin.com/in/username" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="portfolioLink">Portfolio Website</label>
+              <input type="url" id="portfolioLink" className="form-input" defaultValue="https://janedoe.dev" placeholder="https://yourwebsite.com" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="resumeUrl">Resume URL (Hosted PDF)</label>
+              <input type="url" id="resumeUrl" className="form-input" defaultValue="https://drive.google.com/file/d/janedoe-resume.pdf" placeholder="https://example.com/resume.pdf" />
+            </div>
           </form>
         </div>
       </div>
+
+      <div style={{ marginTop: '2.5rem', textAlign: 'right' }}>
+        <button className="btn btn-primary" style={{ cursor: 'not-allowed', opacity: 0.6 }} title="Save disabled in early Module 1.2 mockup">
+          Save Profile Changes (Mocked)
+        </button>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .profile-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
