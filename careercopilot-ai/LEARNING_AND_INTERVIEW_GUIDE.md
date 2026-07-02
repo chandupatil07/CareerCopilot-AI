@@ -956,3 +956,166 @@ Deciding to build the backend using a modular monolithic architecture with FastA
 
 ### INTERVIEW ANSWERS
 - *Answer:* HLD defines the overall system topology, including major components (load balancers, web servers, databases, queues) and how they communicate. LLD defines the internal implementation details of a specific component, including class diagrams, database schemas, Pydantic validators, and function sequence flows.
+- *Answer:* HLD defines the overall system topology, including major components (load balancers, web servers, databases, queues) and how they communicate. LLD defines the internal implementation details of a specific component, including class diagrams, database schemas, Pydantic validators, and function sequence flows.
+
+---
+
+## 31. What is JWT (JSON Web Token)?
+
+### WHAT
+A JSON Web Token (JWT) is an open standard (RFC 7519) that defines a compact, URL-safe container for securely transmitting information between parties as a JSON object.
+
+### WHY
+Traditional web systems use stateful session tables, storing a session ID in the database and checking it on every request. Stateful sessions scale poorly as traffic scales. JWT is stateless; the token contains all user identity metadata, signed by the server, allowing the backend to authenticate requests without performing database lookups.
+
+### HOW
+A JWT consists of three parts separated by dots (`.`):
+1. **Header:** Details the token type and signature algorithm (e.g., `HS256`).
+2. **Payload:** Contains claims, which are statements about the user (e.g. `sub` for User ID, `exp` for expiration time).
+3. **Signature:** The hash of the header and payload signed with a server secret key, ensuring the token cannot be tampered with.
+
+### REAL WORLD EXAMPLE
+A user logs in. The server returns a token. For all subsequent queries, the user's browser sends this token in the header. The server verifies the signature, extracts the user ID, and returns the requested data.
+
+### ADVANTAGES
+- **Stateless & Scalable:** No database sessions required.
+- **Decoupled Security:** Can be verified by separate microservices using public/private key pairs.
+
+### LIMITATIONS
+- **Invalidation Difficulty:** Since JWTs are stateless, they cannot be easily revoked before they expire unless a token blacklist database is maintained.
+
+### INTERVIEW QUESTIONS
+- *What are the three parts of a JSON Web Token (JWT)?*
+- *How do you invalidate a stateless JWT token before it expires?*
+
+### INTERVIEW ANSWERS
+- *Answer:* A JWT consists of a Header (specifying algorithm and type), a Payload (containing user metadata claims), and a Signature (verifying token authenticity).
+- *Answer:* Revocation requires maintaining a fast in-memory blacklist database (e.g. using Redis). When a user logs out, the token is added to the blacklist with a Time-to-Live (TTL) matching its remaining lifespan. Every incoming request checks this blacklist before authorizing access.
+
+---
+
+## 32. What is OAuth?
+
+### WHAT
+OAuth (Open Authorization) is an open standard framework for authorization, allowing users to share private resources stored on one site with another site without sharing their login credentials.
+
+### WHY
+Forcing users to enter their credentials on third-party sites is a severe security risk. OAuth solves this by delegating access to authorization servers.
+
+### HOW
+OAuth uses token exchange flows:
+1. The user clicks "Login with Google".
+2. The user is redirected to Google's authentication page.
+3. Google returns an authorization code to the app.
+4. The backend exchanges this code for an access token to fetch user profile details.
+
+### REAL WORLD EXAMPLE
+Logging into CareerCopilot AI using "Sign in with GitHub" instead of registering a new username and password.
+
+### ADVANTAGES
+- **Improved UX:** Fast, single-click registrations.
+- **Enhanced Security:** Keeps user credentials secure on the provider's server.
+
+### LIMITATIONS
+- **Third-Party Dependency:** If the OAuth provider goes down, users cannot log in.
+
+### INTERVIEW QUESTIONS
+- *Explain the difference between OAuth Authorization Code Grant and Implicit Grant.*
+
+### INTERVIEW ANSWERS
+- *Answer:* The Authorization Code Grant exchanges an authorization code for an access token via a secure back-channel server-to-server call, preventing token exposure in the browser. The Implicit Grant (now deprecated) returns the access token directly to the browser, exposing it to potential XSS leaks.
+
+---
+
+## 33. What are Access and Refresh Tokens?
+
+### WHAT
+- **Access Token:** A short-lived credential used to authenticate requests to secured resources.
+- **Refresh Token:** A long-lived credential used solely to request a new access token when the current one expires.
+
+### WHY
+If a single access token has a long lifespan (e.g. 30 days) and gets compromised, the attacker retains access for the entire duration. Short-lived access tokens limit this window of vulnerability.
+
+### HOW
+- Access tokens expire in 15 minutes and are sent via the HTTP `Authorization` header.
+- Refresh tokens expire in 7 days and are stored as secure, HttpOnly cookies. When the access token expires, the client calls `/refresh` to get a new access token.
+
+### REAL WORLD EXAMPLE
+Stripe issues API keys that act as long-lived access credentials, but their web dashboards use short-lived access tokens with background refresh cookies to secure session lifespans.
+
+### ADVANTAGES
+- **Enhanced Security:** Access token compromise is short-lived.
+- **Frictionless UX:** Re-auth happens in the background without forcing the user to log in again.
+
+### LIMITATIONS
+- **Complexity:** Requires implementing refresh flows and token state management in client-side applications.
+
+### INTERVIEW QUESTIONS
+- *Why is storing refresh tokens in HttpOnly cookies secure?*
+
+### INTERVIEW ANSWERS
+- *Answer:* `HttpOnly` cookies cannot be accessed or read by client-side JavaScript. This prevents malicious scripts (XSS attacks) from stealing the token, securing the session from session hijacking.
+
+---
+
+## 34. What is Bcrypt Hashing?
+
+### WHAT
+Bcrypt is a password hashing function based on the Blowfish cipher. It incorporates a salt and key stretching (work factor) to secure passwords.
+
+### WHY
+Storing plain text passwords is a critical security violation. Even storing simple MD5/SHA256 hashes is insecure because attackers can decode them using precomputed rainbow tables or brute-force dictionary attacks.
+
+### HOW
+Bcrypt mitigates this by:
+1. **Salting:** Adding random characters to the password before hashing, ensuring identical passwords generate different hashes.
+2. **Key Stretching:** Running the hash function thousands of times recursively. This work factor makes brute-force attacks computationally expensive.
+
+### REAL WORLD EXAMPLE
+A user sets their password to `123456`. Bcrypt converts it to `$2b$12$R9h/cIPz...`. If an attacker breaches the database, they cannot easily reverse-engineer the hash to find the plain text password.
+
+### ADVANTAGES
+- **Rainbow Table Mitigation:** Salting makes precomputed tables useless.
+- **Adaptable Complexity:** The work factor can be increased as hardware gets faster, ensuring the system remains secure.
+
+### LIMITATIONS
+- **Computational Cost:** High work factors consume significant server CPU cycles, which can be exploited in denial-of-service (DoS) attacks on login endpoints.
+
+### INTERVIEW QUESTIONS
+- *What is the purpose of salting in password hashing?*
+- *Why is SHA256 alone insufficient for hashing passwords?*
+
+### INTERVIEW ANSWERS
+- *Answer:* Salting appends random characters to a password before hashing it. This ensures that identical passwords generate unique hashes, preventing attackers from using precomputed rainbow tables to reverse-engineer passwords.
+- *Answer:* SHA256 is a fast cryptographic hash designed for high-speed file audits. Its speed is a vulnerability for password hashing; an attacker can compute billions of SHA256 hashes per second on standard hardware, making brute-force dictionary attacks highly viable. Bcrypt uses key stretching to slow down hashing speeds, making brute-force attacks computationally infeasible.
+
+---
+
+## 35. Authentication vs. Authorization
+
+### WHAT
+- **Authentication:** Verifying *who* a user is (e.g. confirming identity credentials during login).
+- **Authorization:** Verifying *what* permissions the authenticated user has (e.g. checking if they own the resource they want to edit).
+
+### WHY
+A system must first identify the user (authentication), and then ensure they cannot access or modify resources belonging to other users (authorization).
+
+### HOW
+- Authentication is handled by verifying credentials (passwords, JWT signatures) and injecting the user context (`get_current_user`).
+- Authorization checks ownership constraints (e.g. checking if `resume.user_id == current_user.id`).
+
+### REAL WORLD EXAMPLE
+Entering an office building. The security guard checks your ID badge (Authentication). Once inside, the keycard scanner checks if you have access to the server room (Authorization).
+
+### ADVANTAGES
+- **Access Control:** Prevents data leaks.
+- **Role-based Actions:** Supports granular user access levels.
+
+### LIMITATIONS
+- **Implementation Oversights:** Developers sometimes implement authentication but forget authorization checks on edit endpoints, leading to IDOR (Insecure Direct Object Reference) vulnerabilities.
+
+### INTERVIEW QUESTIONS
+- *What is an IDOR vulnerability and how do you prevent it?*
+
+### INTERVIEW ANSWERS
+- *Answer:* IDOR (Insecure Direct Object Reference) occurs when an application exposes a direct reference to a database record (like `DELETE /resumes/12`) without verifying if the authenticated user has permissions to modify that record. It is prevented by verifying that the resource's owner ID matches the current user ID before executing database mutations.

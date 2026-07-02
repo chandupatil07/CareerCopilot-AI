@@ -13,6 +13,8 @@ from app.core.errors import (
     global_exception_handler
 )
 from app.api.v1.endpoints.health import router as health_router
+from app.api.v1.endpoints.auth import router as auth_router
+from app.api.v1.endpoints.users import router as users_router
 
 # Configure system-wide basic logging details
 logging.basicConfig(
@@ -70,6 +72,8 @@ async def audit_requests_middleware(request: Request, call_next):
 
 # Mount API routers
 app.include_router(health_router, prefix=settings.API_V1_STR)
+app.include_router(auth_router, prefix=settings.API_V1_STR + "/auth", tags=["Authentication"])
+app.include_router(users_router, prefix=settings.API_V1_STR + "/users", tags=["Users"])
 
 @app.get("/", include_in_schema=False)
 def get_root():

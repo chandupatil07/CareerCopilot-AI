@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     # Database connection parameters parsed dynamically from environment
     DATABASE_URL: str = ""
 
+    # JWT Authentication Parameters
+    JWT_SECRET: str = "" # Fail-safe dynamic environment variable, empty default to avoid checking in credentials
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
     class Config:
         case_sensitive = True
         env_file = ".env"

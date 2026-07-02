@@ -110,4 +110,20 @@
 - **Rationale:** Ensures consistent data parsing on the React frontend and simplifies catch-all response deserialization.
 - **Alternatives Considered:** Allowing arbitrary, un-enveloped JSON structures.
 
+## ADR-023: Passlib CryptContext with Bcrypt Hashing
+- **Decision:** Utilize Passlib's `CryptContext(schemes=["bcrypt"])` to hash and verify passwords in the UserRepository.
+- **Rationale:** Bcrypt incorporates an auto-generated salt and key stretching (work factor) to protect passwords against brute-force and rainbow table attacks.
+- **Alternatives Considered:** Raw SHA256 hashing (vulnerable to dictionary lookups).
+
+## ADR-024: Secure Cookie Handling for Session Refresh
+- **Decision:** Store the JWT refresh token inside an `HttpOnly`, `Secure`, `SameSite=Strict` cookie during login.
+- **Rationale:** Prevents JavaScript from reading the token via document.cookie, mitigating XSS theft, while SameSite blocks cross-site request forgery (CSRF) attempts.
+- **Alternatives Considered:** Storing refresh tokens in client-side localStorage (high security risk).
+
+## ADR-025: Transient Key Fallbacks for Startup Verification
+- **Decision:** Generate a cryptographically secure transient fallback key (`secrets.token_hex(32)`) at boot if `JWT_SECRET` is not set in the environment.
+- **Rationale:** Allows local development, test suites, and compilation checks to run cleanly without forcing developers to configure local variables upfront, while invalidating active logins on server restarts to prevent security holes.
+- **Alternatives Considered:** Failing startup immediately when variables are missing (degrades local developer experience).
+
+
 
