@@ -50,9 +50,13 @@ import Profile from '../pages/dashboard/Profile';
 import ResumeCenter from '../pages/dashboard/ResumeCenter';
 import Applications from '../pages/dashboard/Applications';
 import Interviews from '../pages/dashboard/Interviews';
-import OutreachGenerator from '../pages/dashboard/OutreachGenerator';
+import AICareerAssistant from '../pages/dashboard/AICareerAssistant';
+import ColdEmailGenerator from '../pages/dashboard/ColdEmailGenerator';
+import LinkedInGenerator from '../pages/dashboard/LinkedInGenerator';
+import CareerAnalytics from '../pages/dashboard/CareerAnalytics';
 import Notifications from '../pages/dashboard/Notifications';
 import Settings from '../pages/dashboard/Settings';
+import Support from '../pages/dashboard/Support';
 
 // ==========================================================================
 // 404 CATCH-ALL ROUTE VIEW
@@ -131,8 +135,20 @@ export const router = createBrowserRouter([
         element: <Interviews />
       },
       {
-        path: '/dashboard/outreach',
-        element: <OutreachGenerator />
+        path: '/dashboard/assistant',
+        element: <AICareerAssistant />
+      },
+      {
+        path: '/dashboard/cold-email',
+        element: <ColdEmailGenerator />
+      },
+      {
+        path: '/dashboard/linkedin-generator',
+        element: <LinkedInGenerator />
+      },
+      {
+        path: '/dashboard/analytics',
+        element: <CareerAnalytics />
       },
       {
         path: '/dashboard/notifications',
@@ -145,6 +161,10 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard/settings',
         element: <Settings />
+      },
+      {
+        path: '/dashboard/support',
+        element: <Support />
       }
     ]
   },

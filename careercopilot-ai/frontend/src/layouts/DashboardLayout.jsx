@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 
 function DashboardLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,8 +19,13 @@ function DashboardLayout() {
     '/dashboard/resumes': 'Resume Center',
     '/dashboard/applications': 'Applications',
     '/dashboard/interviews': 'Interviews',
+    '/dashboard/assistant': 'AI Career Assistant',
+    '/dashboard/cold-email': 'Cold Email Generator',
+    '/dashboard/linkedin-generator': 'LinkedIn Generator',
+    '/dashboard/analytics': 'Career Analytics',
     '/dashboard/notifications': 'Notifications',
-    '/dashboard/settings': 'Settings'
+    '/dashboard/settings': 'Settings',
+    '/dashboard/support': 'Support & Feedback'
   };
 
   const currentLabel = menuLabels[location.pathname] || 'Dashboard';
@@ -73,12 +79,14 @@ function DashboardLayout() {
       <div style={mainSectionStyle}>
         {/* 2. SIDEBAR */}
         <div 
-          className={`sidebar-container ${mobileMenuOpen ? 'mobile-open' : ''}`}
+          className={`sidebar-container ${isCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}
         >
           <Sidebar 
             mobileMenuOpen={mobileMenuOpen} 
             setMobileMenuOpen={setMobileMenuOpen} 
             handleLogout={handleLogout} 
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
           />
         </div>
 
@@ -107,7 +115,10 @@ function DashboardLayout() {
           position: sticky;
           top: 70px;
           z-index: 100;
-          transition: transform 0.3s ease-in-out;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-container.collapsed {
+          width: 70px;
         }
         @media (max-width: 1024px) {
           .sidebar-container {
@@ -117,9 +128,13 @@ function DashboardLayout() {
             left: 0;
             height: calc(100vh - 70px);
             transform: translateX(-260px);
+            width: 260px !important; /* Force full width on mobile slide out */
           }
           .sidebar-container.mobile-open {
             transform: translateX(0);
+          }
+          .hide-on-mobile {
+            display: none !important;
           }
         }
       `}</style>

@@ -228,3 +228,239 @@ The architecture utilizes a full-width header (Top Navbar) for branding, notific
 - *Answer:* Wide screens are standard on laptops and desktops. Placing navigation controls vertically inside a Sidebar utilizes page width efficiently, leaving the center area wide and open for rich data tables and charts.
 - *Answer:* Tables are highly complex to style and manage. By building a reusable `ApplicationTable` component, we consolidate search filters, responsive grids, and cell padding styling in one file. Different dashboards can then supply distinct data arrays while keeping layout rules DRY.
 - *Answer:* By using CSS media queries. On screens narrower than 1024px, the sidebar is hidden off-screen (`transform: translateX(-260px)`) and a mobile toggle button is shown in the top navbar. Clicking the button updates local state to toggle a CSS class (e.g., `mobile-open`) that slides the sidebar back into view.
+
+---
+
+## 7. What is FastAPI?
+
+### WHAT
+FastAPI is a modern, fast (high-performance), web framework for building APIs with Python 3.8+ based on standard Python type hints.
+
+### WHY
+Traditional frameworks like Flask do not provide built-in validation or auto-generated documentation, requiring developers to write boilerplate libraries. FastAPI delivers automatic data parsing, validation, and Swagger/ReDoc generation out-of-the-box.
+
+### HOW
+It is built on top of Starlette (for web routing) and Pydantic (for data validation). FastAPI leverages Python's `async` and `await` keywords to run non-blocking asynchronous event loops.
+
+### REAL WORLD EXAMPLE
+Netflix uses FastAPI to manage telemetry pipelines and trigger automated infrastructure deployments.
+
+### ADVANTAGES
+- **Extreme Speed:** Comparable to NodeJS and Go in benchmark execution.
+- **Auto-generated Documentation:** Creates interactive OpenAPI Swagger pages immediately.
+- **Type Safety:** Catches payload format errors instantly using Python type annotations.
+
+### LIMITATIONS
+- **Asynchronous learning curve:** Requires understanding async loops and async databases to prevent blocking the event loop.
+
+### INTERVIEW QUESTIONS
+- *What is FastAPI and what are its core underlying technologies?*
+- *How does FastAPI generate interactive API documentation?*
+
+### INTERVIEW ANSWERS
+- *Answer:* FastAPI is an asynchronous Python web framework built on Starlette for routing/web operations and Pydantic for data serialization and input validation.
+- *Answer:* It automatically parses Pydantic schemas and endpoint type definitions, exporting them as standard OpenAPI specifications. It then mounts Swagger UI (at `/docs`) and ReDoc (at `/redoc`) to visually render these specifications.
+
+---
+
+## 8. Why FastAPI over Flask or Django?
+
+### WHAT
+FastAPI is a next-generation asynchronous API framework, whereas Flask is a micro-framework and Django is a heavy, synchronous "batteries-included" web framework.
+
+### WHY
+Django is bloated for pure REST API microservices, carrying heavy ORMs and template renderers. Flask is simple but synchronous, requiring external packages for validation. FastAPI is lightweight, async-first, and comes with built-in validation.
+
+### HOW
+FastAPI uses standard ASGI web servers to execute concurrent non-blocking tasks. Flask/Django default to WSGI, which processes one request per thread.
+
+### REAL WORLD EXAMPLE
+A startup building an AI product chooses FastAPI to stream model predictions concurrently via async routes, rather than Django which would block workers during heavy calculations.
+
+### ADVANTAGES
+- **Built-in Validation:** Pydantic eliminates manual request validation.
+- **Asynchronous by Default:** Native async/await support.
+- **Fast Startup:** Negligible footprint.
+
+### LIMITATIONS
+- **No Built-in Admin Panel:** Unlike Django, it has no built-in database administration dashboard.
+
+### INTERVIEW QUESTIONS
+- *Under what scenarios would you choose FastAPI over Django?*
+
+### INTERVIEW ANSWERS
+- *Answer:* I would choose FastAPI for building high-performance, asynchronous microservices and API gateways where automatic request validation and lightweight startup times are critical, whereas Django is better for traditional multi-page monolithic applications with complex SQL admin systems.
+
+---
+
+## 9. What is ASGI?
+
+### WHAT
+ASGI (Asynchronous Server Gateway Interface) is a standard interface specification for Python web servers and applications, enabling them to communicate asynchronously.
+
+### WHY
+WSGI (Web Server Gateway Interface) is synchronous and binds a single thread to each request. It cannot handle concurrent persistent connections like WebSockets, long polling, or server-sent events (SSE). ASGI was created to support asynchronous capabilities.
+
+### HOW
+ASGI structures request/response flows as asynchronous coroutines, allowing the web server to handle multiple incoming messages concurrently on a single thread.
+
+### REAL WORLD EXAMPLE
+Chat applications like Slack require WebSockets to push messages instantly. This requires an ASGI server to hold thousands of open websocket channels.
+
+### ADVANTAGES
+- **High Concurrency:** Handles thousands of concurrent open connections.
+- **WebSocket Native:** Supports modern real-time protocols.
+
+### LIMITATIONS
+- **Deployment Complexity:** Requires ASGI servers (like Uvicorn or Hypercorn) which have different configuration requirements than WSGI servers.
+
+### INTERVIEW QUESTIONS
+- *What is ASGI and how does it differ from WSGI?*
+
+### INTERVIEW ANSWERS
+- *Answer:* ASGI stands for Asynchronous Server Gateway Interface. Unlike the synchronous WSGI standard, which processes one request per worker thread sequentially, ASGI is async-first, supporting concurrent connections, WebSockets, and asynchronous event loops.
+
+---
+
+## 10. What is Uvicorn?
+
+### WHAT
+Uvicorn is a lightning-fast ASGI web server implementation for Python, utilized to execute FastAPI applications.
+
+### WHY
+FastAPI is an application framework, not a web server. It cannot listen on port 80 or accept raw TCP sockets directly. Uvicorn acts as the network broker that runs the FastAPI application.
+
+### HOW
+It is built using `uvloop` (an ultra-fast asyncio event loop written in Cython) and `httptools` (a wrapper around Node.js's HTTP parser).
+
+### REAL WORLD EXAMPLE
+To boot our FastAPI server locally, we run `uvicorn app.main:app --reload` which opens a socket on localhost port 8000.
+
+### ADVANTAGES
+- **Extremely Fast:** One of the fastest Python servers available.
+- **Simple Reloading:** Supports `--reload` for instantaneous dev restarts.
+
+### LIMITATIONS
+- **Single Process:** By default runs in a single process. In production, it is typically managed by a process controller like Gunicorn.
+
+### INTERVIEW QUESTIONS
+- *What is the role of Uvicorn in a FastAPI deployment?*
+
+### INTERVIEW ANSWERS
+- *Answer:* Uvicorn is the ASGI web server that binds to a network port and forwards incoming HTTP/WebSocket traffic to the FastAPI ASGI application loop for processing.
+
+---
+
+## 11. What is Pydantic?
+
+### WHAT
+Pydantic is a data validation and settings management library for Python based on Python type annotations.
+
+### WHY
+Validating incoming API payloads manually (e.g. checking if an email is valid, or if an integer is within bounds) requires writing repetitive check statements. Pydantic automates this validation.
+
+### HOW
+By defining class models that inherit from Pydantic's `BaseModel`, attributes are automatically parsed and validated during request parsing. If validation fails, Pydantic raises a structured error.
+
+### REAL WORLD EXAMPLE
+A user submits a JSON payload: `{"applied_date": "invalid-date"}`. Pydantic immediately rejects the request with a status 422 before it reaches the database.
+
+### ADVANTAGES
+- **Fast:** Written in Rust under the hood for core validation logic (in v2).
+- **Type Cast Integration:** Automatically converts string numbers (e.g., `"12"`) to Python integers (`12`).
+
+### LIMITATIONS
+- **Rigid Schema definition:** Dynamic, nested structures can be complex to declare.
+
+### INTERVIEW QUESTIONS
+- *How does FastAPI use Pydantic for request validation?*
+
+### INTERVIEW ANSWERS
+- *Answer:* FastAPI maps incoming HTTP JSON request bodies to parameters typed as Pydantic models. Pydantic parses the payload, validates types, and casts data. If the validation fails, it raises an exception which FastAPI catches to return a 422 JSON response.
+
+---
+
+## 12. What is API Versioning?
+
+### WHAT
+API Versioning is the practice of managing changes to API endpoints to prevent breaking existing client applications (like our React dashboard).
+
+### WHY
+As business requirements evolve, database models and API payload contracts change. If we modify an active endpoint schema, older mobile apps or frontend clients will crash. Versioning ensures both old and new clients work.
+
+### HOW
+Typically implemented via the URL path (e.g., `/api/v1/health` vs `/api/v2/health`) or request headers.
+
+### REAL WORLD EXAMPLE
+Stripe maintains hundreds of API versions, using version headers to run specific legacy parsing pipelines for older integrated companies.
+
+### ADVANTAGES
+- **Backward Compatibility:** Older clients continue working without updates.
+- **De-coupled Releases:** Frontends and backends can release changes independently.
+
+### LIMITATIONS
+- **Code Bloat:** Requires maintaining multiple routing modules and controllers in the backend codebase.
+
+### INTERVIEW QUESTIONS
+- *Why is API versioning crucial in production SaaS products?*
+
+### INTERVIEW ANSWERS
+- *Answer:* API versioning prevents updates from breaking existing client applications. By prefixing routes with versions (e.g. `/api/v1/`), we can deploy new API architectures under `/api/v2/` while older active clients query the legacy endpoints.
+
+---
+
+## 13. What is CORS?
+
+### WHAT
+CORS (Cross-Origin Resource Sharing) is a browser security mechanism that restricts web applications from making request queries to origins other than the one that served the app.
+
+### WHY
+Without CORS, a malicious script on a site (e.g., `evil-site.com`) could execute a background API call to your bank (e.g., `bank.com/transfer`) using your active browser session cookie.
+
+### HOW
+The browser sends an HTTP `OPTIONS` preflight request. The API server must respond with specific headers (like `Access-Control-Allow-Origin: http://localhost:5173`) to authorize the browser to proceed.
+
+### REAL WORLD EXAMPLE
+Our React app at `http://localhost:5173` queries the FastAPI backend at `http://localhost:8000`. The browser blocks this call unless we configure FastAPI's `CORSMiddleware` to authorize `http://localhost:5173`.
+
+### ADVANTAGES
+- **Browser-level Security:** Protects user sessions from malicious cross-site scripting.
+
+### LIMITATIONS
+- **Configuration Overhead:** Developers must keep authorized origin lists updated, and preflight requests add slight latency.
+
+### INTERVIEW QUESTIONS
+- *What is CORS and why does the browser block cross-origin requests by default?*
+
+### INTERVIEW ANSWERS
+- *Answer:* CORS stands for Cross-Origin Resource Sharing. Browsers enforce the Same-Origin Policy to prevent malicious sites from executing unauthorized API commands on target domains using active session coordinates. The browser blocks cross-origin requests unless the target server returns CORS headers explicitly authorizing the source origin.
+
+---
+
+## 14. What is Middleware?
+
+### WHAT
+Middleware is a software component that intercepts, modifies, or audits HTTP requests and responses as they flow through the application pipeline.
+
+### WHY
+Common operations (like request logging, authentication verification, response header injection, and duration tracking) should run globally on all requests. Middleware avoids repeating this code in every endpoint route.
+
+### HOW
+A middleware function intercepts the incoming HTTP request, performs a check or starts a timer, passes the request to the target endpoint, receives the response, modifies it if needed, and returns it to the client.
+
+### REAL WORLD EXAMPLE
+Our request duration middleware logs the request method, path, final HTTP status code, and calculates exactly how many milliseconds the execution took.
+
+### ADVANTAGES
+- **Global Scope:** Runs on all routes automatically.
+- **Separation of Concerns:** Keeps routers focused solely on core business logic.
+
+### LIMITATIONS
+- **Performance Latency:** Bloated middleware functions will add latency to every API call.
+
+### INTERVIEW QUESTIONS
+- *What is middleware in a web framework like FastAPI and give an example of its use?*
+
+### INTERVIEW ANSWERS
+- *Answer:* Middleware is code that executes globally for every HTTP request before it reaches the router, and for every response before it leaves the server. A common example is telemetry middleware that records request start times, waits for execution, and logs request durations and HTTP status codes.
+

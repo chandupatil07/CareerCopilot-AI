@@ -112,3 +112,56 @@ Decomposing complex views into highly focused, reusable components provides seve
 - **Controlled Configuration:** Pass raw data arrays (e.g., list of applications to `ApplicationTable`) and let the component handle rendering, rather than hardcoding markup in the page views.
 - **Dynamic CSS Classes/Modifiers:** Pass parameters like status or type to toggle states (e.g., a `type` prop on a `Badge` component like `applied`, `interviewing`, or `rejected` maps directly to CSS variable classes for styling).
 - **Callback Handlers:** Interactive components should accept event callback props (e.g., `onEdit`, `onDelete` on a card or table row) to bubble actions back up to the parent page view which owns the state, keeping the presentational component stateless.
+
+---
+
+## 6. ASGI vs WSGI Server Architectures
+
+### Question
+*What is the difference between ASGI and WSGI server specifications in Python, and how does this affect runtime performance for concurrent API connections?*
+
+### Answer
+- **WSGI (Web Server Gateway Interface):** The traditional synchronous standard (used by default in Flask and Django). It binds a single request to a single thread. When a database query or model call blocks, the thread is blocked. Handling concurrent connections requires spawning more threads/processes, which consumes significant server memory.
+- **ASGI (Asynchronous Server Gateway Interface):** The modern successor (used by FastAPI). It supports asynchronous execution of concurrent connections on a single thread. When an I/O task blocks (like an API call or database query), the thread suspends the task and yields control back to the event loop to process other incoming requests.
+- **Performance Impact:** ASGI handles thousands of concurrent connections (like WebSockets, long polling, or chat streaming) with minimal memory overhead, outperforming WSGI by orders of magnitude under high network concurrency.
+
+---
+
+## 7. CORS (Cross-Origin Resource Sharing) browser security
+
+### Question
+*What is CORS, what are preflight requests, and how does configuring CORSMiddleware in FastAPI resolve browser script blocks?*
+
+### Answer
+- **CORS:** A security mechanism implemented by web browsers to enforce the Same-Origin Policy. It prevents javascript running on one domain (e.g., `localhost:5173`) from reading response data from another domain (e.g., `localhost:8000`) unless the target server authorizes that origin.
+- **Preflight Request:** For non-simple requests (like POST with JSON payloads), the browser sends a pre-emptive HTTP `OPTIONS` request to query the server's authorized origins, methods, and headers.
+- **FastAPI CORSMiddleware:** Intercepts these preflight `OPTIONS` requests and appends standard CORS headers (like `Access-Control-Allow-Origin`, `Access-Control-Allow-Headers`) to the HTTP response, authorizing the browser to complete the original script API call.
+
+---
+
+## 8. Pydantic Serialization & Data Validation
+
+### Question
+*How does Pydantic manage data validation and serialization under the hood in a FastAPI application, and what is HTTP 422?*
+
+### Answer
+- **Data Validation:** Pydantic uses Python type annotations to validate incoming HTTP payloads against class schemas (inheriting from `BaseModel`). It verifies type constraints (e.g., checking if an ID is an integer, or if an email matches regex guidelines) and automatically parses/casts string values.
+- **Serialization:** It serializes native Python models back into standard JSON payloads.
+- **HTTP 422 (Unprocessable Entity):** If an incoming request fails validation constraints (e.g., missing a required parameter, or incorrect data type), Pydantic catches it, raises a `RequestValidationError`, and FastAPI automatically intercepts it to return an HTTP 422 JSON payload containing detailed validation logs.
+
+---
+
+## 9. Telemetry Middleware in ASGI Frameworks
+
+### Question
+*How do you build a custom middleware in FastAPI to audit API request performance, and how does it execute during the request-response lifecycle?*
+
+### Answer
+- **Middleware Lifecycle:** Middleware runs globally, wrapping around the request-response pipeline. It receives the raw `Request` before it reaches target router paths, and intercepts the completed `Response` before it leaves the server.
+- **Implementation:**
+  1. Record the request start time using `time.perf_counter()`.
+  2. Invoke `await call_next(request)` to pass execution down to the FastAPI router tree.
+  3. Intercept the return `Response` (or catch the raised `Exception`).
+  4. Calculate the process time, log request details (HTTP method, path, response status, duration in ms), and return the response.
+- By placing this in middleware, we ensure that performance logging runs uniformly across all API routes, keeping the router code clean and focused.
+
