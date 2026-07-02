@@ -464,3 +464,495 @@ Our request duration middleware logs the request method, path, final HTTP status
 ### INTERVIEW ANSWERS
 - *Answer:* Middleware is code that executes globally for every HTTP request before it reaches the router, and for every response before it leaves the server. A common example is telemetry middleware that records request start times, waits for execution, and logs request durations and HTTP status codes.
 
+---
+
+## 15. What is an ORM?
+
+### WHAT
+An ORM (Object-Relational Mapper) is a programming technique that lets developers query and manipulate data from a database using object-oriented code, rather than writing raw SQL strings.
+
+### WHY
+Writing SQL strings directly inside application code (e.g. `SELECT * FROM users WHERE id = %s`) is error-prone, hard to refactor, leaves endpoints open to SQL injection attacks, and tightly couples code to a specific database dialect.
+
+### HOW
+The ORM acts as an translator. It maps database tables to classes, table columns to class attributes, and table rows to objects. When you run object methods (like `db.add(user_obj)`), the ORM dynamically compiles it to target SQL syntax (like `INSERT INTO user ...`).
+
+### REAL WORLD EXAMPLE
+Instead of writing `SELECT * FROM user WHERE email = 'test@email.com'`, a developer writes `db.query(User).filter(User.email == 'test@email.com').first()`. The ORM automatically compiles and parameterizes the statement.
+
+### ADVANTAGES
+- **DRY & Object-Oriented:** Write clean, structured class methods.
+- **Security:** Automatically parameterizes inputs, preventing SQL injection.
+- **Database Portability:** Swapping underlying SQL engines (e.g. SQLite to PostgreSQL) requires minimal code changes.
+
+### LIMITATIONS
+- **Performance Overhead:** The object abstraction layer adds CPU processing cycles, and complex queries compiled by the ORM can be less optimized than hand-written SQL queries.
+
+### INTERVIEW QUESTIONS
+- *What is an ORM and why is it used?*
+- *Explain the concept of N+1 query problem and how it occurs in ORMs.*
+
+### INTERVIEW ANSWERS
+- *Answer:* An ORM is an Object-Relational Mapper that bridges relational databases and object-oriented programming. It translates table records to objects and provides parameterized SQL query compilers to avoid manual query writing and injection risks.
+- *Answer:* The N+1 problem occurs when an ORM executes 1 query to fetch a parent list of records, and then executes N separate queries to fetch related child details for each parent record in a loop (e.g., fetching 100 applications, then running 100 database queries to fetch interviews for each application). It is resolved using eager loading methods (like `joinedload` or `selectinload`).
+
+---
+
+## 16. Why SQLAlchemy?
+
+### WHAT
+SQLAlchemy is the premier SQL toolkit and Object Relational Mapper for Python. It provides full enterprise-level power and flexibility for database interaction.
+
+### WHY
+It decoupled the developer from raw database operations. Unlike other Python ORMs (like Django ORM), SQLAlchemy splits tasks into two main interfaces: the SQL Expression Language (for query building) and the ORM (for transaction tracking and mapping objects).
+
+### HOW
+SQLAlchemy 2.0 uses a declarative mapping structure. It manages connections through an `Engine`, creates transactions using `SessionLocal`, and maps operations using the `select()` architecture.
+
+### REAL WORLD EXAMPLE
+Our `Application` table has a relationship with the `Interview` table. Using SQLAlchemy, fetching interviews for an application is as simple as accessing `application.interviews`.
+
+### ADVANTAGES
+- **Granular Control:** Lets developers drop down to Core expression language when high-performance queries are needed.
+- **SQLAlchemy 2.0 Standards:** Fully integrated typing hints support and cleaner syntax.
+
+### LIMITATIONS
+- **Learning Curve:** More complex to configure and configure than simpler active-record micro-ORMs.
+
+### INTERVIEW QUESTIONS
+- *Explain the difference between SQLAlchemy Core and SQLAlchemy ORM.*
+- *What is the role of SessionLocal and Engine in SQLAlchemy?*
+
+### INTERVIEW ANSWERS
+- *Answer:* SQLAlchemy Core is a database abstraction layer providing SQL schema definition and raw query construction. SQLAlchemy ORM is built on top of Core, introducing declarative class mapping and automated session transactions.
+- *Answer:* The `Engine` is the actual connection broker that communicates with database sockets and pools connections. `SessionLocal` is a session factory class that creates individual transient database sessions to execute transactions.
+
+---
+
+## 17. Why PostgreSQL?
+
+### WHAT
+PostgreSQL is a powerful, open-source object-relational database system with a strong reputation for reliability, feature robustness, and performance.
+
+### WHY
+SaaS platforms require absolute consistency, ACID transactions, and support for high concurrent connections. PostgreSQL handles heavy read/write volumes and complex relational joins much better than lighter databases.
+
+### HOW
+It compiles query plans, caches data index trees in memory, and utilizes Write-Ahead Logging (WAL) to guarantee durability and data integrity even during hardware failures.
+
+### REAL WORLD EXAMPLE
+A startup uses PostgreSQL because it can natively handle indexing JSON columns, storing spatial geo-coordinates, and running transaction rollbacks under heavy multi-tenant traffic.
+
+### ADVANTAGES
+- **ACID Compliant:** Guaranteed transactional consistency.
+- **Rich Data Types:** Supports JSONB, Arrays, UUIDs, and Custom Enums natively.
+- **Highly Extensible:** Support for advanced search and spatial extensions (PostGIS).
+
+### LIMITATIONS
+- **Memory Consumption:** Spawns a process per connection, which requires connection poolers (like PgBouncer) under massive concurrent socket connections.
+
+### INTERVIEW QUESTIONS
+- *What makes PostgreSQL suited for enterprise SaaS platforms over NoSQL databases?*
+
+### INTERVIEW ANSWERS
+- *Answer:* PostgreSQL provides strict schema enforcement, foreign key constraints, and full ACID transaction compliance. This prevents orphan records and guarantees data integrity, which is critical for transactional tracking systems.
+
+---
+
+## 18. Why Alembic?
+
+### WHAT
+Alembic is a lightweight, command-line database migration tool for usage with SQLAlchemy.
+
+### WHY
+Production databases cannot be dropped and recreated when columns change. Manually writing `ALTER TABLE` SQL delta scripts is error-prone, hard to coordinate in git, and easy to run out-of-order across development machines.
+
+### HOW
+Alembic compares the current database schema state against target SQLAlchemy model declarations. It autogenerates incremental migration version scripts containing `upgrade()` and `downgrade()` methods.
+
+### REAL WORLD EXAMPLE
+Adding a `linkedin_url` column to the `User` class. Running `alembic revision --autogenerate` creates a version file that adds the column. We then run `alembic upgrade head` to apply it.
+
+### ADVANTAGES
+- **Version Control:** Migrations are standard python files that can be committed to Git.
+- **Safe Alterations:** Applies changes sequentially, keeping existing data safe.
+- **Autogeneration:** Eliminates the need to write manual migration steps.
+
+### LIMITATIONS
+- **Manual Audits Required:** Autogenerated scripts must be audited for renaming actions to prevent data loss.
+
+### INTERVIEW QUESTIONS
+- *Why is a migration tool like Alembic essential in collaborative engineering environments?*
+- *What is the difference between alembic upgrade and downgrade?*
+
+### INTERVIEW ANSWERS
+- *Answer:* It provides a single source of truth for schema state. Every developer can run migrations to align their local database with the master repository branch, preventing configuration mismatch issues.
+- *Answer:* `upgrade` executes schema alterations to move the database structure forward to a newer revision, while `downgrade` rolls back changes to revert the structure to an older state.
+
+---
+
+## 19. What is Normalization?
+
+### WHAT
+Normalization is a database design technique used to organize tables to minimize redundancy and dependency.
+
+### WHY
+Duplicate data (like storing the user's name on both the `Application` and `Resume` tables) wastes storage and leads to update anomalies (e.g. updating the name in one table but forgetting to update it in the other, leaving the database inconsistent).
+
+### HOW
+By dividing databases into multiple tables and defining relationships between them. A standard goal is **Third Normal Form (3NF)**:
+1. **1NF:** Eliminate duplicate columns, create separate tables, and define primary keys.
+2. **2NF:** Meet 1NF, and ensure non-key attributes depend entirely on the primary key.
+3. **3NF:** Meet 2NF, and ensure non-key attributes do not depend transitively on other non-key attributes.
+
+### REAL WORLD EXAMPLE
+Instead of storing all interview logs inside the application row, we extract interviews into a separate `interview` table linked by an `application_id` foreign key.
+
+### ADVANTAGES
+- **Data Consistency:** Updates are made in one place.
+- **Optimized Storage:** Eliminates redundant text fields.
+
+### LIMITATIONS
+- **Query Complexity:** Requires running relational `JOIN` operations, which can slow down performance on extremely large datasets.
+
+### INTERVIEW QUESTIONS
+- *What is Third Normal Form (3NF) and why is it important?*
+
+### INTERVIEW ANSWERS
+- *Answer:* 3NF requires that a database is in 2NF and that all non-key columns depend only on the primary key, the whole primary key, and nothing but the primary key (no transitive dependencies). This prevents update anomalies and data redundancy.
+
+---
+
+## 20. What are Relationships?
+
+### WHAT
+Relationships are associations defined between database tables using primary and foreign keys.
+
+### WHY
+They model real-world associations (e.g. a student applying for jobs) while keeping table structures modular and normalized.
+
+### HOW
+Using SQLAlchemy `relationship()` hooks and database constraint keys:
+- **One-to-One (1:1):** Each row in Table A maps to exactly one row in Table B.
+- **One-to-Many (1:N):** A row in Table A maps to multiple rows in Table B (e.g. one user has many resumes).
+- **Many-to-Many (N:M):** Multiple rows in Table A map to multiple rows in Table B (e.g. users and skills, linked via an association table).
+
+### REAL WORLD EXAMPLE
+A user has multiple job applications. The `user` table is parent, and the `application` table references `user.id` via a foreign key, constituting a **One-to-Many** relationship.
+
+### ADVANTAGES
+- **Logical Mapping:** Models real business structures.
+- **Referential Integrity:** Enforces database constraints.
+
+### LIMITATIONS
+- **Cascading Risks:** Cascading delete operations must be configured carefully to avoid accidentally purging critical parent rows.
+
+### INTERVIEW QUESTIONS
+- *How do you implement a Many-to-Many relationship in SQLAlchemy?*
+
+### INTERVIEW ANSWERS
+- *Answer:* By declaring a junction/association table containing foreign keys referencing both target tables, and passing this association table to the `secondary` argument of SQLAlchemy's `relationship()` function.
+
+---
+
+## 21. What are Primary and Foreign Keys?
+
+### WHAT
+- **Primary Key:** A column (or set of columns) that uniquely identifies each row in a table.
+- **Foreign Key:** A column that establishes a link between data in two tables, referencing the primary key of the target table.
+
+### WHY
+Without primary keys, rows cannot be identified or updated individually. Without foreign keys, tables cannot maintain referential integrity.
+
+### HOW
+- `id = Column(Integer, primary_key=True)`
+- `user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"))`
+
+### REAL WORLD EXAMPLE
+The `user` table has `id` (Primary Key). The `application` table has `user_id` (Foreign Key). If a user is deleted, `ondelete="CASCADE"` automatically deletes all their applications.
+
+### ADVANTAGES
+- **Enforced Integrity:** Prevents orphaned rows.
+- **Index Support:** Primary keys are indexed automatically, optimizing lookups.
+
+### LIMITATIONS
+- **Locking Overhead:** Foreign key verification locks target rows during writes, which can slightly slow down high-speed insert operations.
+
+### INTERVIEW QUESTIONS
+- *What is the difference between a Primary Key and a Foreign Key?*
+- *What does ondelete="CASCADE" do?*
+
+### INTERVIEW ANSWERS
+- *Answer:* A Primary Key uniquely identifies a record within its own table, whereas a Foreign Key references the primary key of another table to link records and enforce referential integrity.
+- *Answer:* `ondelete="CASCADE"` is a database constraint rule. It ensures that when a parent row is deleted, the database automatically deletes all dependent child rows, preventing orphan records.
+
+---
+
+## 22. What are Indexes?
+
+### WHAT
+An index is a database structure that speeds up retrieval operations on a table at the expense of storage and write performance.
+
+### WHY
+Without an index, querying a record (e.g., `SELECT * FROM users WHERE email = 'jane@demo.com'`) forces the database to scan every row in the table (a full table scan).
+
+### HOW
+The database constructs index trees (typically **B-Trees**) storing key-pointer pairs. It performs binary search sweeps over the tree to locate target records instantly.
+- `email = Column(String, unique=True, index=True)`
+
+### REAL WORLD EXAMPLE
+A phone book. Instead of reading page-by-page from the start to find a name, you look at the alphabetical index tabs to skip directly to the target section.
+
+### ADVANTAGES
+- **High Read Performance:** Cuts lookup times from O(n) to O(log n).
+
+### LIMITATIONS
+- **Write Overhead:** Every insert, update, or delete operation forces the database to rebuild the index tree, slowing down write transactions.
+
+### INTERVIEW QUESTIONS
+- *How do indexes speed up queries and what are their tradeoffs?*
+
+### INTERVIEW ANSWERS
+- *Answer:* Indexes construct balanced tree structures (B-Trees) of columns, allowing the database to search records with logarithmic complexity instead of running full table scans. The tradeoff is increased disk storage and slower write speeds.
+
+---
+
+## 23. What is the Repository Pattern?
+
+### WHAT
+The Repository Pattern is a design pattern that isolates database queries and transactions from the business logic layer (routers/APIs).
+
+### WHY
+Writing database queries directly inside endpoint handlers couples the API to a specific database driver or ORM, making code hard to read and unit-test.
+
+### HOW
+By introducing a Repository class (`app/repositories/`) that exposes clean methods (like `get()`, `get_multi()`) and hides internal SQLAlchemy execution blocks.
+
+### REAL WORLD EXAMPLE
+When a user updates their profile, the API controller calls `user_repo.get(db, user_id)` and doesn't write any `db.execute(select(...))` code.
+
+### ADVANTAGES
+- **Decoupled Code:** Simplifies database engine swaps.
+- **Easy Testing:** Allows mocking repository interfaces in unit tests without mounting actual databases.
+- **Reusability:** Consolidates common queries in one place.
+
+### LIMITATIONS
+- **Layer Abstraction Bloat:** Requires creating repository classes for each table, adding files to the repository structure.
+
+### INTERVIEW QUESTIONS
+- *Why is the Repository Pattern useful in large-scale backend systems?*
+
+### INTERVIEW ANSWERS
+- *Answer:* It decouples the core business logic from database query execution. This creates a clean boundary, allows queries to be optimized in one place, and enables unit testing using mocked repositories.
+
+---
+
+## 24. What is Dependency Injection?
+
+### WHAT
+Dependency Injection (DI) is a software design pattern where a component receives its required dependencies from an external provider, rather than instantiating them itself.
+
+### WHY
+If a router function manually instantiates a database session inside its block, the function is tightly coupled to the database configuration, preventing dependency mock swaps during unit tests.
+
+### HOW
+FastAPI uses the `Depends()` utility. Endpoints receive the database session as a parameter:
+- `def read_user(db: Session = Depends(get_db)):`
+
+### REAL WORLD EXAMPLE
+A car. Instead of the engine manufacturing its own fuel lines, the fuel line is provided externally. This lets you swap fuel lines without rebuilding the engine.
+
+### ADVANTAGES
+- **Testability:** Easily inject mock databases during testing.
+- **Lifecycle Management:** Guarantees connection cleanup.
+
+### LIMITATIONS
+- **Traceability:** It hides instantiation paths, which can make debugging more complex for junior developers.
+
+### INTERVIEW QUESTIONS
+- *Explain how Dependency Injection works in FastAPI using Depends().*
+
+### INTERVIEW ANSWERS
+- *Answer:* FastAPI provides a DI engine via `Depends()`. When an endpoint declares a dependency parameter, FastAPI executes the provider generator (like `get_db`), injects the yielded resource, and automatically runs cleanup blocks (closing the session) when the request lifecycle ends.- *Answer:* FastAPI provides a DI engine via `Depends()`. When an endpoint declares a dependency parameter, FastAPI executes the provider generator (like `get_db`), injects the yielded resource, and automatically runs cleanup blocks (closing the session) when the request lifecycle ends.
+
+---
+
+## 25. What are REST APIs?
+
+### WHAT
+REST (Representational State Transfer) is an architectural style for designing networked applications, utilizing standard HTTP methods to read, update, or delete resource states.
+
+### WHY
+Modern applications decouple user interfaces (web, mobile) from database servers. REST provides a standardized, stateless, and uniform interface that allows any client device to communicate with any server regardless of implementation language.
+
+### HOW
+By exposing resource endpoints using plural nouns (e.g. `/resumes`) and using standard HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`) to negotiate state.
+
+### REAL WORLD EXAMPLE
+A weather website makes a REST call `GET /api/v1/weather/san-francisco` to fetch a JSON payload representing the current temperature, rendering it inside a custom UI card.
+
+### ADVANTAGES
+- **Client-Server Separation:** Swapping client code does not affect backend logic.
+- **Statelessness:** Every request contains all parameters needed to fulfill it, simplifying load-balancing.
+- **Caching:** Responses can be cached to optimize retrieval speeds.
+
+### LIMITATIONS
+- **Over-fetching / Under-fetching:** Returns a fixed JSON structure, which can either download unnecessary data fields or force multiple successive API calls (mitigated by GraphQL).
+
+### INTERVIEW QUESTIONS
+- *What is REST and what are its core architectural constraints?*
+
+### INTERVIEW ANSWERS
+- *Answer:* REST is an architectural style for distributed hypermedia systems. Its core constraints are: Client-Server separation, Statelessness, Cacheability, Uniform Interface, Layered System, and Code on Demand.
+
+---
+
+## 26. What is OpenAPI?
+
+### WHAT
+OpenAPI is a machine-readable specification standard for describing, producing, and consuming RESTful web services.
+
+### WHY
+Without a formal schema specification, developers have to manually write and update API documents (like PDF guides). This leads to outdated specs, mismatched payload expectations, and API integration failures.
+
+### HOW
+The spec is written in YAML or JSON, defining endpoints, parameters, request body models, response payloads, and security requirements. Tools parse this file to generate interactive Swagger UI web consoles.
+
+### REAL WORLD EXAMPLE
+FastAPI reads Pydantic models and automatically hosts an interactive Swagger page at `/docs`. Frontend developers query this page to inspect payload formats and run API tests.
+
+### ADVANTAGES
+- **Single Source of Truth:** Code and specs stay synchronized.
+- **Client Generation:** Allows autogenerating client SDK code for mobile/frontend applications.
+
+### LIMITATIONS
+- **Tooling Overhead:** Writing complex schemas manually in raw YAML can be tedious (mitigated by FastAPI's automated generation).
+
+### INTERVIEW QUESTIONS
+- *How does OpenAPI benefit collaborative teams?*
+
+### INTERVIEW ANSWERS
+- *Answer:* OpenAPI provides an unambiguous, standardized contract between frontend and backend teams. It serves as a single source of truth, automates interactive document generation (like Swagger UI), and enables automated client SDK compiling.
+
+---
+
+## 27. What are HTTP Methods and Status Codes?
+
+### WHAT
+HTTP Methods are verbs indicating the desired action on a resource, and HTTP Status Codes are standard 3-digit numbers returned by servers to denote the result of the request.
+
+### WHY
+Using correct HTTP verbs and status codes creates a predictable RESTful interface, allowing network gateways, browsers, and CDNs to handle caching and redirect routing automatically.
+
+### HOW
+- Verbs: `GET` (read), `POST` (create), `PUT` (replace), `PATCH` (modify), `DELETE` (remove).
+- Ranges: `2xx` (Success), `3xx` (Redirects), `4xx` (Client errors), `5xx` (Server errors).
+
+### REAL WORLD EXAMPLE
+If a user tries to delete a resume that doesn't exist, the backend returns an HTTP status `404 Not Found` rather than a standard success code containing an error string.
+
+### ADVANTAGES
+- **Standardized Semantics:** Simplifies client-side error handling.
+- **Gateway Caching:** Safe methods (like `GET`) are cached by proxy servers automatically.
+
+### LIMITATIONS
+- **Mapping Constraints:** Standard status codes are broad and sometimes require custom application-specific sub-codes to convey granular error details.
+
+### INTERVIEW QUESTIONS
+- *Explain the difference between POST, PUT, and PATCH.*
+- *What does HTTP status code 422 indicate?*
+
+### INTERVIEW ANSWERS
+- *Answer:* `POST` is used to create a new resource. `PUT` replaces an existing resource entirely. `PATCH` applies partial modifications to a resource.
+- *Answer:* HTTP 422 (Unprocessable Entity) indicates that the server understands the content type of the request payload, but the parameters fail validation checks (e.g. invalid email structure, missing required fields).
+
+---
+
+## 28. What are Sequence and ER Diagrams?
+
+### WHAT
+- **Sequence Diagram:** A diagram mapping the step-by-step chronological interactions between system components.
+- **ER Diagram (Entity Relationship):** A diagram visualizing database tables, column details, and key-pointer relationships.
+
+### WHY
+Before writing code, engineers must map component lifecycles and table normalization maps to prevent architectural deadlocks, circular dependencies, and database anomalies.
+
+### HOW
+Typically written using visualization standards (like UML or Crow's foot notations) or defined as code using markdown diagram tools (like **Mermaid**).
+
+### REAL WORLD EXAMPLE
+A sequence diagram maps exactly how a request travels from a React button click, through auth middleware check logic, down to database insert operations, and back up to the client.
+
+### ADVANTAGES
+- **Visual Scannability:** Simplifies complex architectural workflows for new team members.
+- **Design Validation:** Identifies system bottlenecks and logic flaws before coding.
+
+### LIMITATIONS
+- **Documentation Drift:** Visual diagrams must be updated when code changes to prevent documentation mismatch.
+
+### INTERVIEW QUESTIONS
+- *Why is a sequence diagram useful during the system design phase of a feature?*
+
+### INTERVIEW ANSWERS
+- *Answer:* A sequence diagram clarifies the chronology of operations, showing exactly which services call other systems. This helps engineers identify unnecessary remote calls, security leaks, and database bottlenecks before writing code.
+
+---
+
+## 29. What is the Service Layer?
+
+### WHAT
+The Service Layer is an architectural design pattern that encapsulates the core business logic, transaction boundaries, and coordinate integrations of an application.
+
+### WHY
+API routers should only handle HTTP logic (status codes, JSON parsing), and repositories should only handle SQL building. Placing business rules (e.g., calculating ATS match scores, sending email alerts, coordinating calculations) inside routers leads to bloated, un-testable code.
+
+### HOW
+By creating service classes (`app/services/`) that orchestrate repositories and external APIs. Routers call these services:
+- `user = UserService.create_user(db, payload)`
+
+### REAL WORLD EXAMPLE
+When a user updates a resume, the `ResumeService` saves the file to S3, queries the database to update metadata, and triggers the AI scoring agent.
+
+### ADVANTAGES
+- **Isolates Business Rules:** Keeps controllers and repositories lightweight.
+- **Reusability:** The same service method can be invoked by REST APIs, CLI scripts, or cron workers.
+
+### LIMITATIONS
+- **Additional Abstraction:** Adds an extra layer of files, which can feel redundant for simple CRUD operations that don't involve complex business logic.
+
+### INTERVIEW QUESTIONS
+- *Explain the difference between Routers, Services, and Repositories.*
+
+### INTERVIEW ANSWERS
+- *Answer:* **Routers** handle the HTTP transport layer (parsing headers, validating JSON, returning status codes). **Services** execute the core business logic and orchestrate operations. **Repositories** handle database access, isolating raw SQL queries from the rest of the application.
+
+---
+
+## 30. Software Architecture vs. System Design
+
+### WHAT
+- **Software Architecture:** The high-level structure of a software system, defining components, patterns, and global constraints (e.g. monolithic vs microservices, ORM choice).
+- **System Design:** The process of defining the concrete modules, interfaces, databases, APIs, and data flows to satisfy specific functional requirements.
+
+### WHY
+Architecture sets the global guidelines and quality attributes (scalability, security, maintainability). System design implements these guidelines to build specific features.
+
+### HOW
+- High-Level Design (HLD) outlines the structural topology (React App ➔ Load Balancer ➔ FastAPI ➔ Postgres).
+- Low-Level Design (LLD) details the classes, schemas, and logic flow of a specific feature.
+
+### REAL WORLD EXAMPLE
+Deciding to build the backend using a modular monolithic architecture with FastAPI and PostgreSQL is a **Software Architecture** decision. Designing the specific schema for the `resume` table and its versioning logic is a **System Design** task.
+
+### ADVANTAGES
+- **Structured Development:** Prevents architectural drift and ensures consistent design patterns across teams.
+- **Predictable Scalability:** System design planning identifies scaling bottlenecks early.
+
+### LIMITATIONS
+- **Over-Engineering:** Spending too much time on design diagrams before validating the product can slow down initial prototyping.
+
+### INTERVIEW QUESTIONS
+- *What is the difference between HLD (High-Level Design) and LLD (Low-Level Design)?*
+
+### INTERVIEW ANSWERS
+- *Answer:* HLD defines the overall system topology, including major components (load balancers, web servers, databases, queues) and how they communicate. LLD defines the internal implementation details of a specific component, including class diagrams, database schemas, Pydantic validators, and function sequence flows.

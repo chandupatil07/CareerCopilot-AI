@@ -165,3 +165,109 @@ Decomposing complex views into highly focused, reusable components provides seve
   4. Calculate the process time, log request details (HTTP method, path, response status, duration in ms), and return the response.
 - By placing this in middleware, we ensure that performance logging runs uniformly across all API routes, keeping the router code clean and focused.
 
+---
+
+## 10. Database Normalization & Third Normal Form (3NF)
+
+### Question
+*Explain database normalization, the differences between 1NF, 2NF, and 3NF, and why normalization is critical in a production SaaS platform.*
+
+### Answer
+- **Normalization:** The process of organizing a relational database schema to minimize data redundancy and prevent update anomalies.
+- **1NF (First Normal Form):** Requires that all attributes contain atomic (indivisible) values, and that there are no repeating groups or duplicate columns.
+- **2NF (Second Normal Form):** Meets 1NF, and requires that all non-key columns depend fully on the primary key (no partial dependencies on a composite primary key).
+- **3NF (Third Normal Form):** Meets 2NF, and requires that all non-key columns depend directly on the primary key, with no transitive dependencies (i.e., non-key columns cannot depend on other non-key columns).
+- **Critical Importance:** Normalization guarantees data consistency. If a user updates their email, it is updated in a single row on the `user` table, rather than forcing updates across multiple redundant application rows, avoiding data inconsistency.
+
+---
+
+## 11. Referential Integrity & Cascade Rules
+
+### Question
+*What is referential integrity, and how do database foreign key constraints with cascade rules (e.g., `ondelete="CASCADE"`) safeguard database state?*
+
+### Answer
+- **Referential Integrity:** A database security concept ensuring that relationships between tables remain consistent. Any foreign key value in a child table must reference a valid, existing primary key in the parent table.
+- **Cascade Deletes:** Enforced by appending `ondelete="CASCADE"` to the foreign key constraint. If a parent record (e.g., a job `Application`) is deleted, the database automatically cascades the operation to delete all dependent child records (e.g., scheduled `Interviews`).
+- **Safeguard:** This prevents orphaned rows (child records pointing to a non-existent parent), preserving data integrity and freeing up disk storage automatically.
+
+---
+
+## 12. Indexing and B-Tree Tree Mechanics
+
+### Question
+*How do B-Tree database indexes speed up query operations, and what are the read/write performance tradeoffs of adding indexes to multiple columns?*
+
+### Answer
+- **Mechanics:** B-Tree (Balanced Tree) indexes organize column values in a sorted tree structure. When running a lookup (e.g., finding a user by `email`), the database traverses the tree using binary search, cutting lookup complexity from O(n) table scans to O(log n) tree searches.
+- **Read Tradeoff:** Drastically speeds up `SELECT` queries that filter, join, or sort by the indexed column.
+- **Write Tradeoff:** Every `INSERT`, `UPDATE`, or `DELETE` command forces the database to rebuild and rebalance the tree structure to keep it sorted. Excessive indexing degrades write performance and increases disk space consumption.
+- **Rule of Thumb:** Index columns that are frequently used in `WHERE`, `JOIN`, or `ORDER BY` clauses (e.g., `user.email`, `application.company_name`), but avoid indexing columns with low cardinality (like boolean active flags).
+
+---
+
+## 13. Decoupling Logic via Repository Pattern
+
+### Question
+*Why is the Repository Pattern preferred over executing inline ORM queries in API routers?*
+
+### Answer
+- **Tight Coupling:** Writing queries (e.g. `db.execute(select(User)...)`) inside routers couples the endpoint to a specific ORM implementation.
+- **Repository Pattern Advantages:**
+  1. **Separation of Concerns:** The API router handles HTTP details (status codes, payload validation), while the repository manages data access.
+  2. **Code Reusability:** Consolidates queries in one module instead of rewriting them across endpoints.
+  3. **Testing Mockability:** Enables developers to swap database queries with in-memory list mocks during unit tests, bypassing the database during test suites.
+
+---
+
+## 14. High-Level Design (HLD) vs. Low-Level Design (LLD)
+
+### Question
+*What is the difference between High-Level Design (HLD) and Low-Level Design (LLD), and what deliverables are expected for each in enterprise SaaS planning?*
+
+### Answer
+- **High-Level Design (HLD):** Outlines the macro system topology. It focuses on the architectural style (e.g. monolithic vs microservices), load balancers, database clusters, caching tiers, message brokers, and third-party integrations (like Gemini API). The main deliverable is the **System Architecture Diagram** showing component communication paths.
+- **Low-Level Design (LLD):** Outlines the micro implementation details of a specific component. It details database schemas, class relationships, object models, Pydantic schemas, specific function signatures, and sequence diagrams. Deliverables include **Class Diagrams** and **Process Flowcharts** (e.g., how the upload resume state changes).
+
+---
+
+## 15. Monolith to Microservices Evolution
+
+### Question
+*When scaling a backend architecture, what indicators suggest it is time to split a monolith into microservices, and what are the associated engineering tradeoffs?*
+
+### Answer
+- **Indicators to Split:**
+  1. **Resource Contention:** A single CPU-intensive feature (like PDF parsing) hogs threads and degrades the performance of vital APIs (like user login).
+  2. **Team Scalability:** Multiple engineering squads block each other due to code conflicts in a shared codebase.
+  3. **Independent Deployability:** A minor bug fix in the notification system forces redeploying the entire monolithic platform.
+- **Tradeoffs:**
+  - **Advantages:** Decoupled code boundaries, specialized databases (e.g. TimescaleDB for metrics, S3 + Postgres for resumes), and isolated fault domains (failure in the AI service doesn't crash user login).
+  - **Disadvantages:** Increased network latency (RPC calls instead of local functions), complex distributed transaction handling (Saga pattern), and increased infrastructure maintenance overhead (monitoring distributed logs).
+
+---
+
+## 16. REST API Naming Standards & Resource Orientation
+
+### Question
+*Why does REST advocate for resource-oriented URL paths using plural nouns, and how should actions that do not fit standard CRUD verbs (like AI scoring) be modeled?*
+
+### Answer
+- **Resource Orientation:** REST models the system as a collection of resources (e.g., `/users`, `/applications`). Plural nouns combined with standard HTTP verbs (`GET`, `POST`, `DELETE`) create a uniform, self-documenting interface. Verbs inside URL paths (like `/getApplications`) violate REST semantics.
+- **Non-CRUD Actions:** For actions like scoring or generating text, REST advocates modeling the action as a sub-resource controller or a virtual state action:
+  - **Sub-resource:** `POST /api/v1/resumes/{id}/analysis` (requests an analysis report resource on a specific resume).
+  - **State Transition:** `PATCH /api/v1/applications/{id}/stage` (updates the stage parameter, triggering side effects).
+
+---
+
+## 17. Application Error Catalogs vs. HTTP Status Codes
+
+### Question
+*Why is returning custom application error codes (e.g., AUTH_001, RESUME_003) alongside standard HTTP status codes a best practice in enterprise API design?*
+
+### Answer
+- Standard HTTP status codes are too broad. For instance, an `HTTP 400 Bad Request` could indicate a file size overflow, an invalid file type, or a missing form parameter.
+- Returning a structured JSON response containing a unique application error code (e.g., `{"error_code": "RESUME_002"}`) allows the client application (like the React dashboard) to determine the exact failure reason and display targeted user-facing error messages, while simplifying backend logging audits.
+
+
+

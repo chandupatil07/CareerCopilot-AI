@@ -69,3 +69,45 @@
 - **Decision:** Implement a global exception handler in `errors.py` and request duration logger middleware.
 - **Rationale:** Ensures consistent JSON error payloads regardless of failure type, preventing server traceback details from leaking, while auditing request times to watch for performance bottlenecks.
 - **Alternatives Considered:** Ad-hoc try/catch blocks in every router path (prone to code repetition, difficult to guarantee consistent error formats).
+
+## ADR-015: Selection of PostgreSQL as Production Database
+- **Decision:** Use PostgreSQL as the production database for CareerCopilot AI.
+- **Rationale:** Highly reliable, complies with SQL standards, supports complex relational schemas, indexes, and constraints, and is the industry-standard open-source database for SaaS systems.
+- **Alternatives Considered:** MySQL (less robust JSON handling), MongoDB (NoSQL lacks native relational constraint checking for transaction trackers).
+
+## ADR-016: Selection of SQLAlchemy 2.x as ORM
+- **Decision:** Use SQLAlchemy 2.0+ as the Object Relational Mapper (ORM).
+- **Rationale:** SQLAlchemy 2.x provides a modern query execution interface (e.g. `select()`), automatic session handling, type checking, and native integration with FastAPI validation layers.
+- **Alternatives Considered:** Tortoise ORM (lacks maturity), raw SQL query drivers (prone to injection attacks and lacks object mapping helper properties).
+
+## ADR-017: Selection of Alembic as Database Migration Engine
+- **Decision:** Initialize and manage schema migrations utilizing Alembic.
+- **Rationale:** Standard companion for SQLAlchemy that tracks database alterations incrementally as version files, ensuring production systems never require manual tables manipulation.
+- **Alternatives Considered:** Manual SQL delta scripts (highly error-prone and difficult to deploy consistently).
+
+## ADR-018: Database Normalization & Constraint Rules
+- **Decision:** Normalize the data models to Third Normal Form (3NF) and enforce strict constraints (Cascade delete, Foreign Keys, Unique values, Indexes on query paths).
+- **Rationale:** Prevents orphan records (e.g. deleting an application automatically cascades to purge its associated interviews) and optimizes query lookups via index keys (e.g. `email` index on users).
+- **Alternatives Considered:** Denormalized flat structures (leads to update anomalies and data duplication).
+
+## ADR-019: Decoupled Data Access via Repository Pattern
+- **Decision:** Restructure data transactions inside a repository layer (`app/repositories/`).
+- **Rationale:** Isolates query logic from routers. The API layer talks to repository interfaces, enabling database engines to be swapped or mocked in unit tests without changing endpoint business logic.
+- **Alternatives Considered:** Direct SQLAlchemy query execution inside router methods (leads to tight coupling, making testing harder).
+
+## ADR-020: Stateless Token-based Security Architecture (JWT)
+- **Decision:** Implement stateless authentication utilizing signed JWT access tokens (15m expiration) sent via Authorization headers and refresh tokens (7d expiration) stored as HttpOnly, Secure cookies.
+- **Rationale:** Prevents server session storage bloat and protects active sessions from XSS token theft.
+- **Alternatives Considered:** Stateful session tables (scales poorly on high traffic).
+
+## ADR-021: API Versioning in URL Paths
+- **Decision:** Implement API versioning via URL paths (e.g. `/api/v1/...`).
+- **Rationale:** Highly visible, easily cached by CDNs, and allows deploying breaking changes (v2) side-by-side with legacy v1 endpoints.
+- **Alternatives Considered:** Header-based versioning (harder to test and inspect).
+
+## ADR-022: Unified JSON Response Standards
+- **Decision:** Enforce a unified JSON envelope format `{ "success": bool, "data": obj, "error": obj }` returned on all API paths.
+- **Rationale:** Ensures consistent data parsing on the React frontend and simplifies catch-all response deserialization.
+- **Alternatives Considered:** Allowing arbitrary, un-enveloped JSON structures.
+
+
