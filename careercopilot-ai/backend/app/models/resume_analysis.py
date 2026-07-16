@@ -11,7 +11,7 @@ class ResumeAnalysis(Base):
     __tablename__ = "resume_analyses"
 
     id = Column(Integer, primary_key=True, index=True)
-    resume_id = Column(Integer, ForeignKey("resumes.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    resume_id = Column(Integer, ForeignKey("resume.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
     parsed_text = Column(Text, nullable=True)
     contact_info = Column(JSON, nullable=True)     # Schema: {"email": str, "phone": str, "urls": [str]}
     education = Column(JSON, nullable=True)        # Schema: [str]

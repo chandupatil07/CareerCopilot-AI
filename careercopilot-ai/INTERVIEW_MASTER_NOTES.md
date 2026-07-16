@@ -394,6 +394,195 @@ Decomposing complex views into highly focused, reusable components provides seve
 - **Word Boundaries (\b):** Prevents substring matches. For example, if searching for the skill `Go`, checking for the substring `go` matches letters inside words like `good`, `government`, or `django`. Applying `\bgo\b` ensures only the isolated word `Go` matches.
 - **Non-Word Characters Issue:** Word boundaries check for changes between word characters (`\w`) and non-word characters (`\W`). If a term begins or ends with a non-word character (like a parenthesis in `(123) 456-7890` or `C++` ending in `+`), applying `\b` can truncate the characters or fail the match entirely, requiring developers to use custom patterns (like `(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}`) to extract characters accurately.
 
+---
+
+## 28. REST API CRUD Architecture and Verb Mapping
+
+### Question
+*How do HTTP verbs map to CRUD operations in a database, and why is PATCH preferred over PUT for status changes?*
+
+### Answer
+- **Verb Mapping:** `POST` maps to database inserts (`INSERT`), `GET` maps to read queries (`SELECT`), `PUT` and `PATCH` map to updates (`UPDATE`), and `DELETE` maps to deletes (`DELETE`).
+- **PATCH vs. PUT:** `PUT` replaces the entire target resource with the new request body. This means the client must submit all fields, which can accidentally overwrite changes. `PATCH` applies partial modifications, allowing clients to send only the modified fields (like a status change) without affecting or resending other columns.
+
+---
+
+## 29. Database Pagination Performance: Offset vs. Cursor-Based
+
+### Question
+*Why does offset-based pagination degrade in performance for large datasets, and how does cursor-based pagination resolve this?*
+
+### Answer
+- **Offset degradation:** For queries like `LIMIT 10 OFFSET 100000`, the database engine scans the index and reads all 100,010 rows from disk, discarding the first 100,000 before returning the last 10. As offsets grow, query latency increases linearly.
+- **Cursor resolution:** Cursor-based pagination uses a pointer from the last fetched item (e.g. `WHERE id > :last_id LIMIT 10`). This allows the database to execute a range index seek directly to the cursor row and fetch the next 10 rows instantly, maintaining constant time complexity `O(1)` regardless of page depth.
+
+---
+
+## 30. SQLite Batch Migrations and DDL Limits
+
+### Question
+*Why do Alembic database migration scripts fail on SQLite when altering column properties, and how do batch operations resolve this?*
+
+### Answer
+- **SQLite DDL Limits:** SQLite has limited DDL support. It does not support `ALTER TABLE ... ALTER COLUMN` type modifications directly.
+- **Batch Resolution:** Alembic's `render_as_batch=True` configuration copies the table's schema, creates a new temporary table with the modified columns, copies the existing records into it, drops the original table, and renames the new table to the original name, bypassing SQLite's DDL constraints.
+
+---
+
+## 31. Workflow State Machines and Timeline Audit Logs
+
+### Question
+*How do you prevent invalid pipeline stages in a CRM and maintain a historical audit log of all changes?*
+
+### Answer
+- **State Machine:** In the service layer, we define a transition dictionary mapping each target stage to a list of allowed source stages. Any transition not explicitly permitted throws an HTTP 400 Bad Request error.
+- **Timeline Audit Logs:** Instead of just updating the status on the application record, we log each change as a row in an immutable history table (e.g., `application_timelines`). This table tracks the transition, the timestamp, and user comments, preserving a complete audit trail of the candidate's journey.
+
+---
+
+## 32. Cross-Entity IDOR Guards Validation in Hierarchical Entities
+
+### Question
+*How do you enforce Insecure Direct Object Reference (IDOR) controls for child resources (e.g., an Interview slot) when the user only supplies the parent ID (e.g., Application ID) or the child ID directly?*
+
+### Answer
+- **By Parent ID (Creation):** We query the parent database entity (the Job Application) and verify that the `user_id` of the parent record matches the authenticated request's `current_user.id`. If there's a mismatch, we raise an HTTP 403 Forbidden error immediately before saving the child record.
+- **By Child ID (Details/Updates/Deletions):** We query the child record (the Interview), then fetch the associated parent record (the Job Application) via foreign key joins. We verify that the parent record belongs to the active user. If the database returns null or there is a user ID mismatch, we deny access with a 403 Forbidden error to prevent data leaks.
+
+---
+
+## 33. Side-Effects in Domain-Driven Services: Automatic Stage Transition
+
+### Question
+*What are the advantages and design considerations when implementing automatic state promotions (such as transitioning an application stage to 'Technical Interview' when scheduling an interview)?*
+
+### Answer
+- **Advantages:** Improves the user experience by automating repetitive steps, maintaining synchronization between calendar schedules and kanban tracker cards.
+- **Design Considerations:** Side-effects should always run through the domain service layer (e.g. calling `ApplicationService.update_application_status`) rather than direct database updates. This ensures that validation rules (workflow state validation) and auxiliary audit trails (writing history to the timeline log) are executed correctly.
+
+---
+
+## 34. Decoupled Notifications: Service-Layer vs. Router Dispatches
+
+### Question
+*Why is it a best practice to trigger automated user notifications inside domain service transactions rather than REST endpoint controllers?*
+
+### Answer
+- **Consistency:** Placing triggers in the service layer ensures notifications are sent regardless of how the transaction is triggered (e.g., via REST APIs, backend Celery tasks, or command-line scripts).
+- **Reduced Controller Bloat:** It keeps REST endpoints thin and focused solely on HTTP handling, parameter parsing, and serialization.
+- **Maintainability:** Updates to notification formats or logic are made in one central location rather than being duplicated across multiple endpoint handlers.
+
+---
+
+## 35. Database Retention & Expiration (TTL) Strategies
+
+### Question
+*How do you handle database bloat in notification and event log tables in a high-volume SaaS environment?*
+
+### Answer
+- **TTL (Time to Live) Expirations:** Store an `expires_at` timestamp on each notification log (e.g., set to 30 days after creation by default).
+- **Bulk Purge Operations:** Expose system endpoints (or schedule cron tasks) that run bulk delete operations:
+  `DELETE FROM notification WHERE expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP`
+- **Indexing Expiration Columns:** Create a B-Tree index on the `expires_at` column. This prevents the database from performing slow table scans during periodic purges.
+
+---
+
+## 36. Silent Token Refresh Flow via Axios Interceptors
+
+### Question
+*How do you implement a transparent token refresh mechanism in a single-page application using Axios interceptors?*
+
+### Answer
+- **Interceptor Catch:** Configure a response interceptor to intercept all responses. If a response returns a `401 Unauthorized` status, we inspect the request.
+- **Lock and Key:** We set a `_retry = true` flag on the request config to prevent infinite loops, and dispatch a silent `POST /auth/refresh` request (with `withCredentials: true` config to ensure browser cookies are attached).
+- **Session Recovery:** The backend reads the secure refresh token cookie, validates it, and responds with a fresh access token. We save the new token, update the header of the original paused request config, and retry the request using the Axios instance.
+- **Fail-Safe Logout:** If the refresh request itself fails (returns 400/401, meaning the refresh token expired), we catch the rejection, clear the local access token from storage, and redirect the user back to the login page.
+
+---
+
+## 37. Security Tradeoffs: LocalStorage vs. HttpOnly Cookie Token Storage
+
+### Question
+*What are the security tradeoffs between storing JWT access and refresh tokens in localStorage versus HttpOnly cookies?*
+
+### Answer
+- **LocalStorage Tradeoff:**
+  - *Pros:* Simple to read and append in JS headers, does not require configuring CORS cookie credentials.
+  - *Cons:* Vulnerable to Cross-Site Scripting (XSS). If a hacker injects malicious JS (via compromised npm packages or script tags), they can steal the tokens instantly.
+- **HttpOnly Cookies Tradeoff:**
+  - *Pros:* Immune to XSS scripts because the browser restricts JavaScript from reading or writing the cookie.
+  - *Cons:* Vulnerable to Cross-Site Request Forgery (CSRF). A malicious site could trick the browser into sending requests to the API with the session cookie.
+- **Unified Production Design:**
+  - To combine the strengths of both: We store the short-lived access token (expires in 15 mins) in localStorage, and store the long-lived refresh token (expires in 7 days) in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie. Even if XSS succeeds, only the short-lived access token is stolen. CSRF is mitigated on the refresh token cookie using `SameSite=Strict`.
+
+---
+
+## 38. Parallel Data Aggregations on SaaS Dashboards
+
+### Question
+*How do you optimize data fetching on a metrics-heavy SaaS dashboard page in a React application?*
+
+### Answer
+- **The Waterfall Antipattern:** Fetching dashboard metrics, calendar details, notification counts, and profile records sequentially results in a nested loading waterfall, where the interface hangs until the last request completes.
+- **Concurrency using Promise.all:** We wrap the API service requests in a concurrent executor context:
+  `const [stats, interviews, activities, resumes] = await Promise.all([ ... ]);`
+  This fires all requests in parallel, cutting down overall network loading time to the duration of the slowest single request.
+- **Unified Error Boundary:** We wrap the execution in a single `try/catch` block. If any vital endpoint fails, we log the detail and render a friendly warning state allowing candidates to retry, while displaying loading indicators on container cards to maintain responsiveness.
+
+---
+
+## 39. Debugging Lazy ORM Relationship Mapper Resolution Crashes
+
+### Question
+*In SQLAlchemy, what causes a KeyError when initializing a mapper on application boot, and how do you resolve it?*
+
+### Answer
+- **Root Cause:** SQLAlchemy uses lazy compilation for class relationships. If model `A` (e.g. `User`) has a relationship pointing to model `B` (e.g. `AIChat`), and model `A` is queried before the file declaring model `B` has been imported in the Python runtime context, SQLAlchemy's compiler fails to locate class `B` in its global registry, raising an `InvalidRequestError` or `KeyError`.
+- **Solution:** We create a unified database mapping file (e.g. `app/database/base.py`) that imports all models under the declarative metadata schema. We then import this file inside the main application file (`app/main.py`) to guarantee that all models are loaded in memory when the ASGI application initializes.
+
+---
+
+## 40. Automated Deal Stage Transitions in CRM Systems
+
+### Question
+*How do you maintain data consistency in database relationships when scheduling an event implicitly affects the state of a related parent entity?*
+
+### Answer
+- **The Event-to-State Correlation:** In an application tracker, scheduling a calendar interview round should logically transition the parent job application tracking card's stage (e.g., from "Applied" to "Technical Interview").
+- **Transactional Service Enforcements:** We orchestrate this transition inside the backend service layer within a database transaction context:
+  1. We verify that the candidate owns the parent application ID to prevent IDOR vulnerabilities.
+  2. We insert the new Interview database record.
+  3. We call `ApplicationService.update_application_status()` to set the status to `"Technical Interview"` and append an audit timeline log.
+  4. We commit the transaction.
+- **Fail-Safe Rollbacks:** If any step fails (e.g. status transition throws validation issues), the database rolls back the transaction entirely, ensuring that no orphaned interview schedules are left without the status updates.
+
+---
+
+## 41. Decoupled State Synchronization via Custom HTML Events
+
+### Question
+*How do you synchronize unread message counts across independent sidebar and header widgets in a React application without loading a state library like Redux?*
+
+### Answer
+- **Decoupled Architecture:** Using global state libraries like Redux or Zustand for simple, sporadic counters introduces unnecessary boilerplate. Prop-drilling leads to tight component coupling.
+- **Custom Event Emits:** We emit custom browser window events when state changes occur:
+  `window.dispatchEvent(new Event('auth:unread_notifications_changed'));`
+- **Subscription Hooks:** We listen for this event inside the layout sidebar and top headers using simple subscription listeners:
+  ```javascript
+  useEffect(() => {
+    const handler = () => fetchUnreadCounts();
+    window.addEventListener('auth:unread_notifications_changed', handler);
+    return () => window.removeEventListener('auth:unread_notifications_changed', handler);
+  }, []);
+  ```
+- **Advantages:** This decouples UI widgets, cuts down rerendering overhead, and updates the badges instantly.
+
+
+
+
+
+
+
 
 
 

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import userAvatar from '../assets/user_avatar.png';
+import { useAuth } from '../context/AuthContext';
 
 function Navbar({ currentLabel, mobileMenuOpen, setMobileMenuOpen }) {
+  const { user } = useAuth();
   const topbarStyle = {
     height: '70px',
     backgroundColor: 'var(--bg-secondary)',
@@ -40,7 +42,7 @@ function Navbar({ currentLabel, mobileMenuOpen, setMobileMenuOpen }) {
             alt="User Profile" 
             style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--color-accent)', objectFit: 'cover' }}
           />
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 500 }} className="desktop-only">Jane Doe</span>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 500 }} className="desktop-only">{user?.name || 'Candidate'}</span>
         </div>
       </div>
 

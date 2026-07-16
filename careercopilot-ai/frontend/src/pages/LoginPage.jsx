@@ -35,15 +35,29 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import authBanner from '../assets/auth_banner.png';
 import Logo from '../components/Logo';
+import { useAuth } from '../context/AuthContext';
+import ButtonLoader from '../components/ButtonLoader';
+import { ROUTES } from '../constants/routes';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  
+  const { login, error, setError } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate('/dashboard');
+    setSubmitting(true);
+    try {
+      await login(email, password);
+      navigate(ROUTES.DASHBOARD.HOME);
+    } catch (err) {
+      // Error details populated inside AuthContext
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const splitScreenStyle = {
@@ -84,7 +98,7 @@ function LoginPage() {
           
           {/* Logo linkage */}
           <div style={{ marginBottom: '2.5rem' }}>
-            <Link to="/">
+            <Link to="/" onClick={() => setError(null)}>
               <Logo width="36" height="36" showText={true} />
             </Link>
           </div>
@@ -95,6 +109,20 @@ function LoginPage() {
               Sign in to manage your career tracking dashboard.
             </p>
           </div>
+
+          {error && (
+            <div style={{
+              padding: '0.8rem',
+              borderRadius: 'var(--border-radius-sm)',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              color: '#EF4444',
+              marginBottom: '1.5rem',
+              fontSize: '0.85rem'
+            }}>
+              ⚠️ {error}
+            </div>
+          )}
 
           <form onSubmit={handleLogin}>
             <div className="form-group">
@@ -131,17 +159,18 @@ function LoginPage() {
               <a href="#forgot" style={{ color: 'var(--color-accent)' }}>Forgot password?</a>
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.8rem' }}>
-              Sign In
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.8rem' }} disabled={submitting}>
+              {submitting ? <ButtonLoader /> : 'Sign In'}
             </button>
           </form>
 
           <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.875rem' }}>
             <span style={{ color: 'var(--text-secondary)' }}>Don't have an account? </span>
-            <Link to="/register" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Create Account</Link>
+            <Link to={ROUTES.REGISTER} onClick={() => setError(null)} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Create Account</Link>
           </div>
         </div>
       </div>
+
 
       {/* RIGHT COLUMN: BRAND GRAPHICS COVER */}
       <div style={artColumnStyle} className="login-art-column">

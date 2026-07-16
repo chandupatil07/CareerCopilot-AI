@@ -2,8 +2,12 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from './Logo';
 import userAvatar from '../assets/user_avatar.png';
+import { useAuth } from '../context/AuthContext';
 
 function Sidebar({ mobileMenuOpen, setMobileMenuOpen, handleLogout, isCollapsed, setIsCollapsed }) {
+  const { user } = useAuth();
+  const userName = user?.name || 'Candidate User';
+  const userEmail = user?.email || 'email@profile.com';
   const location = useLocation();
 
   const menuItems = [
@@ -130,12 +134,12 @@ function Sidebar({ mobileMenuOpen, setMobileMenuOpen, handleLogout, isCollapsed,
             objectFit: 'cover',
             margin: isCollapsed ? '0 auto' : '0'
           }}
-          title={isCollapsed ? 'Jane Doe (developer@profile)' : ''}
+          title={isCollapsed ? `${userName} (${userEmail})` : ''}
         />
         {!isCollapsed && (
           <div style={{ flex: 1, overflow: 'hidden' }}>
-            <h4 style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>Jane Doe</h4>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', display: 'block' }}>developer@profile</span>
+            <h4 style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{userName}</h4>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', display: 'block' }}>{userEmail}</span>
           </div>
         )}
       </div>

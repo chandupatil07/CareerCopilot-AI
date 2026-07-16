@@ -12,10 +12,14 @@ from app.core.errors import (
     validation_exception_handler,
     global_exception_handler
 )
+from app.database import base  # noqa
 from app.api.v1.endpoints.health import router as health_router
 from app.api.v1.endpoints.auth import router as auth_router
 from app.api.v1.endpoints.users import router as users_router
 from app.api.v1.endpoints.resume import router as resume_router
+from app.api.v1.endpoints.applications import router as applications_router
+from app.api.v1.endpoints.interviews import router as interviews_router
+from app.api.v1.endpoints.notifications import router as notifications_router
 
 # Configure system-wide basic logging details
 logging.basicConfig(
@@ -76,6 +80,9 @@ app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR + "/auth", tags=["Authentication"])
 app.include_router(users_router, prefix=settings.API_V1_STR + "/users", tags=["Users"])
 app.include_router(resume_router, prefix=settings.API_V1_STR + "/resumes", tags=["Resumes"])
+app.include_router(applications_router, prefix=settings.API_V1_STR + "/applications", tags=["Applications"])
+app.include_router(interviews_router, prefix=settings.API_V1_STR + "/interviews", tags=["Interviews"])
+app.include_router(notifications_router, prefix=settings.API_V1_STR + "/notifications", tags=["Notifications"])
 
 @app.get("/", include_in_schema=False)
 def get_root():

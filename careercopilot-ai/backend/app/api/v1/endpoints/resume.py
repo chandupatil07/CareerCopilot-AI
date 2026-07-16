@@ -95,21 +95,7 @@ def activate_resume(
     db: Session = Depends(get_db)
 ) -> Any:
     """Toggle a specific resume version as the active target for ATS parsing scans."""
-    resume = resume_repo.get(db, id=id)
-    if not resume:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Resume record not found."
-        )
-    
-    # IDOR Guard: Verify ownership
-    if resume.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied to modify requested resume status."
-        )
-        
-    return resume_repo.set_active_resume(db, user_id=current_user.id, resume_id=id)
+    return ResumeService.activate_resume(db, user_id=current_user.id, resume_id=id)
 
 @router.delete("/{id}", status_code=status.HTTP_200_OK, summary="Delete Resume")
 def delete_resume(
@@ -137,28 +123,7 @@ def parse_resume(
     Extract raw text, contact information, education, skills, and projects,
     running a rule-based ATS scoring algorithm on findings.
     """
-    resume = resume_repo.get(db, id=id)
-    if not resume:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Resume record not found."
-        )
-    
-    # IDOR Guard: Verify ownership
-    if resume.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied to parse requested resume."
-        )
-        
-    # Extract plain text content and parse metadata elements
-    parsed_data = ResumeParserService.parse_resume(resume.storage_path)
-    
-    # Perform rule-based ATS scoring
-    score_data = ATSScoringService.calculate_ats_score(parsed_data)
-    
-    # Persist analysis details in database
-    return analysis_repo.save_analysis(db, resume_id=id, parsed_data=parsed_data, score_data=score_data)
+    return ResumeService.parse_and_score_resume(db, user_id=current_user.id, resume_id=id)
 
 @router.get("/{id}/analysis", response_model=ResumeAnalysisSchema, summary="Get Resume Analysis")
 def get_resume_analysis(

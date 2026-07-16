@@ -8,4 +8,6 @@ from app.models.notification import Notification  # noqa
 from app.models.chat import AIChat  # noqa
 from app.models.outreach import ColdEmailHistory, LinkedInHistory  # noqa
 from app.models.resume_analysis import ResumeAnalysis  # noqa
+from app.models.application_timeline import ApplicationTimeline  # noqa
+
 

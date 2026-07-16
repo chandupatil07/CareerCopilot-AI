@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
+import { ROUTES } from '../constants/routes';
 
 function DashboardLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -9,9 +11,17 @@ function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate('/');
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate(ROUTES.LOGIN);
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
   };
+
 
   const menuLabels = {
     '/dashboard': 'Dashboard',
@@ -94,7 +104,7 @@ function DashboardLayout() {
         <div style={contentAreaStyle}>
           <main style={contentWrapperStyle}>
             <div className="badge badge-purple" style={{ marginBottom: '1.5rem' }}>
-              🔒 SaaS Mock Environment: No data will be written to remote servers.
+              🔒 Authenticated Session Active
             </div>
             <Outlet />
           </main>

@@ -58,6 +58,10 @@ import Notifications from '../pages/dashboard/Notifications';
 import Settings from '../pages/dashboard/Settings';
 import Support from '../pages/dashboard/Support';
 
+// Security and Constants
+import ProtectedRoute from '../components/ProtectedRoute';
+import { ROUTES } from '../constants/routes';
+
 // ==========================================================================
 // 404 CATCH-ALL ROUTE VIEW
 // ==========================================================================
@@ -74,7 +78,7 @@ function NotFoundPage() {
       <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem', maxWidth: '480px', margin: '0 auto 2.5rem auto' }}>
         The page you are looking for does not exist or has been relocated to another workspace directory.
       </p>
-      <Link to="/" className="btn btn-primary">
+      <Link to={ROUTES.LANDING} className="btn btn-primary">
         Return Home
       </Link>
     </div>
@@ -87,83 +91,87 @@ function NotFoundPage() {
 export const router = createBrowserRouter([
   // 1. PUBLIC MARKETING SCOPE
   {
-    path: '/',
+    path: ROUTES.LANDING,
     element: <AppLayout />,
     children: [
       {
-        path: '/',
+        path: ROUTES.LANDING,
         element: <LandingPage />
       },
       {
-        path: '/about',
+        path: ROUTES.ABOUT,
         element: <AboutPage />
       },
       {
-        path: '/contact',
+        path: ROUTES.CONTACT,
         element: <ContactPage />
       },
       {
-        path: '/login',
+        path: ROUTES.LOGIN,
         element: <LoginPage />
       },
       {
-        path: '/register',
+        path: ROUTES.REGISTER,
         element: <RegisterPage />
       }
     ]
   },
   
-  // 2. PRIVATE DASHBOARD SCOPE (NESTED UNDER SIDEBAR LAYOUT)
+  // 2. PRIVATE DASHBOARD SCOPE (NESTED UNDER PROTECTED SIDEBAR LAYOUT)
   {
-    path: '/dashboard',
-    element: <DashboardLayout />,
+    path: ROUTES.DASHBOARD.HOME,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
-        path: '/dashboard',
+        path: ROUTES.DASHBOARD.HOME,
         element: <DashboardHome />
       },
       {
-        path: '/dashboard/resumes',
+        path: ROUTES.DASHBOARD.RESUMES,
         element: <ResumeCenter />
       },
       {
-        path: '/dashboard/applications',
+        path: ROUTES.DASHBOARD.APPLICATIONS,
         element: <Applications />
       },
       {
-        path: '/dashboard/interviews',
+        path: ROUTES.DASHBOARD.INTERVIEWS,
         element: <Interviews />
       },
       {
-        path: '/dashboard/assistant',
+        path: ROUTES.DASHBOARD.ASSISTANT,
         element: <AICareerAssistant />
       },
       {
-        path: '/dashboard/cold-email',
+        path: ROUTES.DASHBOARD.COLD_EMAIL,
         element: <ColdEmailGenerator />
       },
       {
-        path: '/dashboard/linkedin-generator',
+        path: ROUTES.DASHBOARD.LINKEDIN,
         element: <LinkedInGenerator />
       },
       {
-        path: '/dashboard/analytics',
+        path: ROUTES.DASHBOARD.ANALYTICS,
         element: <CareerAnalytics />
       },
       {
-        path: '/dashboard/notifications',
+        path: ROUTES.DASHBOARD.NOTIFICATIONS,
         element: <Notifications />
       },
       {
-        path: '/dashboard/profile',
+        path: ROUTES.DASHBOARD.PROFILE,
         element: <Profile />
       },
       {
-        path: '/dashboard/settings',
+        path: ROUTES.DASHBOARD.SETTINGS,
         element: <Settings />
       },
       {
-        path: '/dashboard/support',
+        path: ROUTES.DASHBOARD.SUPPORT,
         element: <Support />
       }
     ]
