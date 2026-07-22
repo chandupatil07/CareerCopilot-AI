@@ -240,6 +240,17 @@
 - **Rationale:** Allows independent workspace sections (like the Navbar bell or Sidebar counter badges) to update counts instantly without forcing full page reloads.
 - **Alternatives Considered:** Using heavy prop-drilling or polling endpoints repeatedly (degrades responsiveness).
 
+## ADR-049: AI Assistant Normalized Schema Structure
+- **Decision:** Create separate tables for `ChatSession` (conversations) and `ChatMessage` (message logs) instead of a single flat table mapping user questions to mock replies.
+- **Rationale:** Supports multiple concurrent threads/chats per user, isolates chat logs pagination and caching from the session list queries, and prepares for future RAG semantic contexts mappings.
+- **Alternatives Considered:** Flat single-table records with `conversation_id` string grouping (causes metadata duplication and complex session updates queries).
+
+## ADR-050: Decoupled AI Assistant Repositories and Services Architecture
+- **Decision:** Separate the database CRUD logic (`ChatSessionRepository` and `ChatMessageRepository`) from transactional flow controls and auth filters (`AIAssistantService`).
+- **Rationale:** Guarantees strict IDOR protection validations, decouples direct database transactions from third-party APIs (like Gemini) that will be integrated in later modules, and simplifies testing via isolated mocks.
+- **Alternatives Considered:** Bundling queries and controls directly inside route endpoints (leads to highly coupled, brittle, and untestable controllers).
+
+
 
 
 

@@ -1,4 +1,4 @@
-# DEVELOPMENT HANDOFF: CareerCopilot AI (Modules 2.0 - 4.6)
+# DEVELOPMENT HANDOFF: CareerCopilot AI (Modules 2.0 - 5.1)
 
 ## 1. System Deliverables Overview
 We have finalized the SaaS frontend workspace foundation, established the Python FastAPI backend, designed the database schema, documented the system architecture, implemented production authentication, and integrated all completed backend features with the React client:
@@ -10,6 +10,7 @@ We have finalized the SaaS frontend workspace foundation, established the Python
 - **Job Application CRM (Module 4.4):** Kanban stage tracking table, search & filters, favorite toggles, archived logs, modal creations, and slide-out detail timelines drawers.
 - **Interview Scheduler Calendar (Module 4.5):** Scheduled sessions list divided into upcoming and past events, scheduling dialogs linking database applications, and automatic application status promotions on the backend.
 - **Notification Center Integration (Module 4.6):** Read status changes, unread counters, purge buttons, and custom global events dispatch listeners.
+- **AI Assistant Backend Foundation (Module 5.1):** Normalized schema models with thread sessions (`ChatSession`) and message turns (`ChatMessage`). Integrated endpoints for session CRUD and dialogue saves with multi-tenant IDOR protection, validated in the Pytest suite.
 
 ---
 
@@ -29,7 +30,7 @@ We have finalized the SaaS frontend workspace foundation, established the Python
 ---
 
 ## 4. Automated & Manual Test Verification
-- Run backend tests: `python -m pytest` (36 passed successfully).
+- Run backend tests: `python -m pytest` (44 passed successfully).
 - Verify frontend compilation: `npm run build` (built production bundle successfully in under 6 seconds).
 
 ---
@@ -47,6 +48,12 @@ We have finalized the SaaS frontend workspace foundation, established the Python
 
 ### Q4: How do you synchronize unread counts across independent components without Redux in React?
 **Answer:** We can use standard HTML custom window events. When a state modifies, we dispatch a custom event: `window.dispatchEvent(new Event('auth:unread_notifications_changed'))`. Other components subscribe to this event using `window.addEventListener` inside `useEffect`, updating their internal states accordingly.
+
+### Q5: Why is a normalized ChatSession and ChatMessage schema preferred over a single flat chat table?
+**Answer:** Storing chats in a single flat table requires duplicating session titles or metadata in every row, causing storage waste. A normalized structure separates session details from message lines, permitting efficient thread management, pagination, and independent message caching.
+
+### Q6: What is an IDOR vulnerability, and how do you protect endpoints against it in FastAPI?
+**Answer:** Insecure Direct Object Reference (IDOR) is a vulnerability where an app exposes direct references to database objects without verifying if the user has access permissions. We mitigate this by checking ownership in the service layer: we load the database record, check if `record.user_id == current_user.id`, and raise a `403 Forbidden` exception if they do not match.
 
 ---
 

@@ -20,6 +20,7 @@ from app.api.v1.endpoints.resume import router as resume_router
 from app.api.v1.endpoints.applications import router as applications_router
 from app.api.v1.endpoints.interviews import router as interviews_router
 from app.api.v1.endpoints.notifications import router as notifications_router
+from app.api.v1.endpoints.ai import router as ai_router
 
 # Configure system-wide basic logging details
 logging.basicConfig(
@@ -83,6 +84,7 @@ app.include_router(resume_router, prefix=settings.API_V1_STR + "/resumes", tags=
 app.include_router(applications_router, prefix=settings.API_V1_STR + "/applications", tags=["Applications"])
 app.include_router(interviews_router, prefix=settings.API_V1_STR + "/interviews", tags=["Interviews"])
 app.include_router(notifications_router, prefix=settings.API_V1_STR + "/notifications", tags=["Notifications"])
+app.include_router(ai_router, prefix=settings.API_V1_STR + "/ai", tags=["AI Assistant"])
 
 @app.get("/", include_in_schema=False)
 def get_root():

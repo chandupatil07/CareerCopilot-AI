@@ -577,6 +577,35 @@ Decomposing complex views into highly focused, reusable components provides seve
   ```
 - **Advantages:** This decouples UI widgets, cuts down rerendering overhead, and updates the badges instantly.
 
+---
+
+## 42. Normalized Schema Designs for Chat Sessions & Message Logs
+
+### Question
+*Why is a normalized ChatSession and ChatMessage table pair preferred over a single flat chats table in conversational SaaS architectures?*
+
+### Answer
+- **Eliminating Duplicity:** Storing conversational dialogs in a single flat table requires duplicating session titles, creation times, and update metadata on every message record, wasting database storage.
+- **Granular Query Paths:** Separating the entities allows fetching chat session titles (for rendering a sidebar conversation list) extremely quickly with minimal data transfers. Detailed message logs can be lazy-loaded, paginated, and cached independently.
+- **Relationship Integrity:** Cascade rules are clean: deleting a `ChatSession` automatically cascading-purges linked `ChatMessage` elements via foreign key constraints, preventing database bloat and orphan records.
+
+---
+
+## 43. Mitigating IDOR Vulnerabilities in SaaS Endpoint Architectures
+
+### Question
+*What is an Insecure Direct Object Reference (IDOR) vulnerability, and how do you protect multi-tenant session queries in FastAPI?*
+
+### Answer
+- **The Vulnerability:** IDOR occurs when an application exposes a database record reference (like a chat session ID `101`) in an API endpoint, and fails to check if the caller owns that object. A malicious user could alter the ID parameter to read or delete other users' private sessions.
+- **FastAPI Injection Defense:** We prevent IDOR by verifying user ownership inside the service layer transaction context:
+  1. We retrieve the user model dependency from the token payload: `current_user = Depends(get_current_user)`.
+  2. We query the object by primary key ID: `session = repo.get(db, id=session_id)`.
+  3. If the object doesn't exist, we raise a `404 Not Found` exception to prevent data leaking.
+  4. We verify user ownership: `if session.user_id != current_user.id: raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")`.
+  5. We execute the command and commit.
+
+
 
 
 
