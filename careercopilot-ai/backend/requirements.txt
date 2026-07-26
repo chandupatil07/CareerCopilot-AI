@@ -2,7 +2,9 @@ fastapi>=0.110.0,<0.112.0
 uvicorn>=0.30.0,<0.31.0
 pydantic-settings>=2.2.0,<2.4.0
 python-dotenv>=1.0.0,<1.1.0
-passlib[bcrypt]>=1.7.4,<1.8.0
+# passlib[bcrypt]>=1.7.4,<1.8.0
+passlib==1.7.4    #changed using tool newly
+bcrypt==4.0.1   #changed using tool newly
 python-jose[cryptography]>=3.3.0,<3.4.0
 pdfplumber>=0.11.0,<0.12.0
 google-generativeai>=0.8.0,<0.9.0
