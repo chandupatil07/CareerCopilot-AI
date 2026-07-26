@@ -15,7 +15,8 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3001",
-        "https://career-copilot-ai-cyan.vercel.app"
+        "https://career-copilot-ai-cyan.vercel.app",
+         "https://career-copilot-ai-t5xa.vercel.app"  #this is added due to issue at frontend using tools
     ]
 
     # Database connection parameters parsed dynamically from environment
