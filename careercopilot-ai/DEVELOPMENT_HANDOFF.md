@@ -11,6 +11,8 @@ We have finalized the SaaS frontend workspace foundation, established the Python
 - **Interview Scheduler Calendar (Module 4.5):** Scheduled sessions list divided into upcoming and past events, scheduling dialogs linking database applications, and automatic application status promotions on the backend.
 - **Notification Center Integration (Module 4.6):** Read status changes, unread counters, purge buttons, and custom global events dispatch listeners.
 - **AI Assistant Backend Foundation (Module 5.1):** Normalized schema models with thread sessions (`ChatSession`) and message turns (`ChatMessage`). Integrated endpoints for session CRUD and dialogue saves with multi-tenant IDOR protection, validated in the Pytest suite.
+- **Production Gemini Integration (Module 5.2):** Implemented an isolated AI Service Layer including custom exception hierarchies (`ai_exceptions.py`), a modular `PromptBuilder` mapping database roles to Gemini history turns with context-window clamping and RAG placeholders (`prompt_builder.py`), a `ResponseFormatter` for text cleansing (`response_formatter.py`), and `GeminiService` wrapping client initialization, request timeouts, and exponential retry limits (`gemini_service.py`). Refactored frontend with textareas, button loader states, retry banners, and custom markdown parsers.
+- **Conversation Memory & Context Management (Module 5.3):** Configured automated conversation context limits using sliding context window parameters (`GEMINI_MAX_HISTORY_MESSAGES`). Added a REST API controller for renaming conversation titles (`PUT /api/v1/ai/conversations/{id}`) secured with multi-tenant IDOR protection. Implemented client-side session caching via browser `localStorage` and added edit/rename option interfaces in the sidebar conversation panels.
 
 ---
 
@@ -30,8 +32,8 @@ We have finalized the SaaS frontend workspace foundation, established the Python
 ---
 
 ## 4. Automated & Manual Test Verification
-- Run backend tests: `python -m pytest` (44 passed successfully).
-- Verify frontend compilation: `npm run build` (built production bundle successfully in under 6 seconds).
+- Run backend tests: `python -m pytest` (57 passed successfully).
+- Verify frontend compilation: `npm run build` (built production bundle successfully in under 4 seconds).
 
 ---
 
@@ -57,7 +59,26 @@ We have finalized the SaaS frontend workspace foundation, established the Python
 
 ---
 
-## 6. Development Commands
+## 6. Recent Bugfixes
+
+### 1. RegExp Skill-Matching Syntax Crash Fixed
+- **Problem:** Matching search keywords like "C++" or ".NET" using simple `\b${skill}\b` regex formats threw `SyntaxError: Nothing to repeat` due to unescaped special characters.
+- **Fix:** Implemented custom RegExp char-escaping and dynamic boundary assertions:
+  ```javascript
+  const hasWordCharStart = /^\w/.test(skill);
+  const hasWordCharEnd = /\w$/.test(skill);
+  const boundaryStart = hasWordCharStart ? '\\b' : '(?:^|\\s)';
+  const boundaryEnd = hasWordCharEnd ? '\\b' : '(?:$|\\s)';
+  const pattern = new RegExp(`${boundaryStart}${escapeRegExp(skill)}${boundaryEnd}`, 'i');
+  ```
+
+### 2. JWT-Authenticated Resume Downloads
+- **Problem:** Direct download anchors (`<a href="...">`) fail to attach JWT Bearer tokens, triggering `401 Unauthorized` blocks on backend endpoints.
+- **Fix:** Switched anchors to triggers calling Axios fetches with `responseType: 'blob'`. This securely downloads files in the background and saves them programmatically in the browser.
+
+---
+
+## 7. Development & Production Commands
 
 ### Running Locally
 - Start Frontend server:
@@ -65,10 +86,17 @@ We have finalized the SaaS frontend workspace foundation, established the Python
   cd careercopilot-ai/frontend
   npm run dev
   ```
-- Launch ASGI API server:
+- Launch ASGI API server (Database falls back to local `sql_app.db` automatically if env is empty):
   ```powershell
   cd careercopilot-ai/backend
-  $env:DATABASE_URL="sqlite:///sql_app.db"
-  python -m uvicorn app.main:app --reload --port 8000
+  $env:GEMINI_API_KEY="AQ.Ab8RN6L-mjvjhCUAlPkf4owpTP8J9c8-s5qPhOLFX53b_AhgGw"
+  .\venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
   ```
-- Run automated tests: `python -m pytest`
+- Run automated tests: `.\venv\Scripts\python -m pytest`
+
+### Production Deployment
+Refer to the dedicated **[DEPLOYMENT.md](file:///c:/Users/balaj/OneDrive/Desktop/CareerCopilot%20AI/careercopilot-ai/DEPLOYMENT.md)** playbook for details on:
+- Managed PostgreSQL database creation.
+- FastAPI backend deployment on Render/Railway.
+- React frontend static hosting on Vercel with path fallback routing configurations.
+

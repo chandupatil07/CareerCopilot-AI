@@ -1,5 +1,6 @@
 from typing import List, Any
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
@@ -8,6 +9,7 @@ from app.models.user import User as UserModel
 from app.schemas.chat_session import (
     ChatSession,
     ChatSessionCreate,
+    ChatSessionUpdate,
     ChatMessage,
     ChatMessageCreate
 )
@@ -58,6 +60,37 @@ def save_message(
     Append and save a new user or assistant prompt log turn to a conversation.
     """
     return AIAssistantService.save_message(db, user_id=current_user.id, session_id=id, obj_in=payload)
+
+@router.post("/conversations/{id}/messages/stream", summary="Stream Message Response")
+async def stream_message(
+    id: int,
+    payload: ChatMessageCreate,
+    current_user: UserModel = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Real-time streaming endpoint utilizing Server-Sent Events (SSE).
+    Generates tokens incrementally from Gemini and returns a Chunked stream.
+    """
+    generator = await AIAssistantService.stream_message(
+        db,
+        user_id=current_user.id,
+        session_id=id,
+        obj_in=payload
+    )
+    return StreamingResponse(generator, media_type="text/event-stream")
+
+@router.put("/conversations/{id}", response_model=ChatSession, summary="Rename Conversation")
+def update_conversation(
+    id: int,
+    payload: ChatSessionUpdate,
+    current_user: UserModel = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Rename an existing chat session title.
+    """
+    return AIAssistantService.update_conversation(db, user_id=current_user.id, session_id=id, obj_in=payload)
 
 @router.delete("/conversations/{id}", response_model=ChatSession, summary="Delete Conversation")
 def delete_conversation(

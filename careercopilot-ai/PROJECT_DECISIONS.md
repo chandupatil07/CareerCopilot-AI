@@ -250,8 +250,67 @@
 - **Rationale:** Guarantees strict IDOR protection validations, decouples direct database transactions from third-party APIs (like Gemini) that will be integrated in later modules, and simplifies testing via isolated mocks.
 - **Alternatives Considered:** Bundling queries and controls directly inside route endpoints (leads to highly coupled, brittle, and untestable controllers).
 
+## ADR-051: Isolated AI Service Layer
+- **Decision:** Encapsulate all Google Gemini API call transactions inside an isolated service layer (`gemini_service.py`) instead of direct inclusion in routers or general database services.
+- **Rationale:** Prevents coupling REST route endpoints or SQL database services to external LLM vendor SDK changes. Allows switching vendors or models without refactoring core business logic.
+- **Alternatives Considered:** Bundling generative API requests inside endpoint routers or general services (poor architectural boundary).
 
+## ADR-052: Modular Prompt Builder Service
+- **Decision:** Establish a distinct, dedicated prompt builder component (`prompt_builder.py`).
+- **Rationale:** Standardizes prompt generation, history role mapping (matching SQL `assistant` messages to Gemini's `model` roles), and provides a explicit architectural placeholder for future RAG document injections.
+- **Alternatives Considered:** Formatting prompt strings inline inside service method code blocks.
 
+## ADR-053: Standardized Response Formatter
+- **Decision:** Route all LLM generated texts through a dedicated response formatter utility (`response_formatter.py`).
+- **Rationale:** Guarantees that empty, null, or improperly formed LLM outputs are captured and converted into high-quality user-friendly fallback text prior to database persistence.
+- **Alternatives Considered:** Storing raw LLM strings directly into the database.
 
+## ADR-054: Decoupled AI Exception Hierarchy
+- **Decision:** Implement a custom exception hierarchy (`ai_exceptions.py`) matching timeouts, rate-limits, permission denials, and connection failures.
+- **Rationale:** Isolates internal Google client exceptions (e.g., GoogleAPICallError) from API routes, ensuring clear logging on the server and user-friendly HTTP errors on the client.
+- **Alternatives Considered:** Leaking raw Google SDK stack trace exceptions to the web router response.
 
+## ADR-055: Transactional Chat Consistency
+- **Decision:** In the event of a Gemini API generation error, delete the saved user prompt from the database before raising the HTTPException.
+- **Rationale:** Enforces strict visual consistency: prevents "dangling" user prompts in the chat history that lack corresponding assistant replies, keeping the user workspace clean.
+- **Alternatives Considered:** Preserving failed user prompts without assistant answers (leads to dirty workspace logs).
 
+## ADR-056: State Locks & Textarea Inputs
+- **Decision:** Implement textareas with auto-submit Enter hotkeys and full state blocks (disabling buttons and inputs) while AI generates content.
+- **Rationale:** Enables multi-line inputs, prevents double-submission race conditions, and guides candidate attention with clean loaders.
+- **Alternatives Considered:** Standard HTML text input controls (unsuitable for long form inputs).
+
+## ADR-057: Zero-Dependency Client Markdown Parsing
+- **Decision:** Implement a lightweight, custom regex-based parser in React to render markdown headers, list points, code tags, and bold text.
+- **Rationale:** Achieves correct formatting for Gemini's markdown outputs with zero external dependency bloat, maintaining small client bundles.
+- **Alternatives Considered:** Installing `react-markdown` (adds extra bundle bytes and NPM audit dependencies).
+
+## ADR-058: Configurable Context Clamping in Prompt Builder
+- **Decision:** Utilize an app-wide settings configuration parameter `GEMINI_MAX_HISTORY_MESSAGES` to clamp history arrays inside `PromptBuilder.build_history` dynamically.
+- **Rationale:** Prevents context-window overflow errors and minimizes Google Gemini API consumption/rate limits while maintaining full state history of the conversation turns in the database.
+- **Alternatives Considered:** Arbitrary hardcoded bounds inside prompt builder methods (inflexible).
+
+## ADR-059: PUT Route for Session Title Updates (Rename)
+- **Decision:** Expose a `PUT /conversations/{id}` controller mapping to a `update_conversation` service flow.
+- **Rationale:** Enables users to organize their threads with custom descriptions. Implements proper user ownership guards checking `session.user_id == current_user.id` to block direct object reference (IDOR) breaches.
+- **Alternatives Considered:** Re-creating a new thread and deleting the old one (poor UX).
+
+## ADR-060: Selected Session Persistence
+- **Decision:** Cache the active thread session ID in the browser's `localStorage` on component mount and updates.
+- **Rationale:** Guarantees a seamless candidate experience by keeping the current conversation active and pre-selected on browser page reloads.
+- **Alternatives Considered:** Storing only in transient React memory state (wipes session selections on page refreshes).
+
+## ADR-061: Real-Time Token Streaming utilizing Server-Sent Events (SSE)
+- **Decision:** Implement real-time token streaming utilizing Server-Sent Events (SSE) via FastAPI's `StreamingResponse` and HTML5 `fetch` ReadableStream reader instead of WebSockets.
+- **Rationale:** SSE is lightweight, unidirectional (server-to-client), runs natively over HTTP/S with standard ports (avoiding corporate firewall blocks), supports standard token authorization headers, and incorporates automatic reconnection. WebSockets are bidirectional, complex to scale (stateful connections), and unnecessary for simple text generation streams.
+- **Alternatives Considered:** WebSockets (overkill, complex load-balancing), raw HTTP chunked transfer without SSE formatting (harder to manage error boundaries).
+
+## ADR-062: Client-side Stream Abort via AbortController
+- **Decision:** Integrate `AbortController` in the React page state machine to cancel fetch stream consumption.
+- **Rationale:** Gives the candidate full interactive control to interrupt long generative replies instantly.
+- **Alternatives Considered:** Allowing streams to generate fully regardless of client interest (wastes API tokens).
+
+## ADR-063: Rollback on Stream Interruption (No Dangling Prompts)
+- **Decision:** Delete the user's prompt from the database if the stream is cancelled, interrupted, or fails.
+- **Rationale:** Enforces visual alignment and keeps database logs clean, preventing orphan prompts without replies (maintaining ADR-055 consistency).
+- **Alternatives Considered:** Keeping the user prompt with an empty or partial reply (creates dirty chat logs).

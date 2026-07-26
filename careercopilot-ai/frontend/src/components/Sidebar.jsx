@@ -139,7 +139,7 @@ function Sidebar({ mobileMenuOpen, setMobileMenuOpen, handleLogout, isCollapsed,
         {!isCollapsed && (
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <h4 style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{userName}</h4>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', display: 'block' }}>{userEmail}</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', display: 'block' }}>Candidate</span>
           </div>
         )}
       </div>

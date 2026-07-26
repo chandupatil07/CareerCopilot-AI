@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
 import Badge from '../../components/Badge';
 import PageLoader from '../../components/PageLoader';
@@ -252,7 +253,7 @@ function Interviews() {
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '1rem' }}>
             You need at least one tracked job card inside the Applications Tracker to schedule interviews.
           </span>
-          <Link to={ROUTES.DASHBOARD.APPLICATIONS} className="btn btn-primary" style={{ padding: '0.4rem 1.2rem', fontSize: '0.8rem', display: 'inline-block' }}>
+          <Link to="/dashboard/applications" className="btn btn-primary" style={{ padding: '0.4rem 1.2rem', fontSize: '0.8', display: 'inline-block' }}>
             Go Track Job Card
           </Link>
         </div>

@@ -12,7 +12,9 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001"
     ]
 
     # Database connection parameters parsed dynamically from environment
@@ -26,6 +28,13 @@ class Settings(BaseSettings):
 
     # File Upload Directory
     UPLOAD_DIR: str = "uploads"
+
+    # Gemini API configurations
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-2.0-flash"
+    GEMINI_TIMEOUT_SECONDS: int = 15
+    GEMINI_MAX_HISTORY_MESSAGES: int = 20
+
 
     class Config:
         case_sensitive = True

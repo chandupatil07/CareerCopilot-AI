@@ -39,5 +39,8 @@ class ChatSession(ChatSessionBase):
     class Config:
         from_attributes = True
 
+class ChatSessionUpdate(BaseModel):
+    title: str
+
 class ChatSessionWithMessages(ChatSession):
     messages: List[ChatMessage] = []

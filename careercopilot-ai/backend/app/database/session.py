@@ -7,8 +7,8 @@ logger = logging.getLogger("app.database.session")
 
 database_url = settings.DATABASE_URL
 if not database_url:
-    logger.warning("DATABASE_URL is not configured in settings. Falling back to an in-memory database for syntax compiling.")
-    database_url = "sqlite://"
+    logger.warning("DATABASE_URL is not configured in settings. Falling back to local sql_app.db file.")
+    database_url = "sqlite:///sql_app.db"
 
 # Connect parameters. connect_args check_same_thread is only required for SQLite
 connect_args = {}

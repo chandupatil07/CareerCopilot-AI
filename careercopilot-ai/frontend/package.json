@@ -16,7 +16,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "backend": "cd ../backend && cmd /c \"set DATABASE_URL=sqlite:///sql_app.db && venv\\Scripts\\python -m uvicorn app.main:app --reload --port 8000\""
   },
   "dependencies": {
     "axios": "^1.18.1",

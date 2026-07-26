@@ -185,6 +185,23 @@ function ResumeCenter() {
     }
   };
 
+  const handleDownloadResume = async (id, filename) => {
+    try {
+      const blob = await resumeService.downloadResume(id);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename || 'resume.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download resume file:', err);
+      alert('Failed to download resume from server.');
+    }
+  };
+
   // Run interactive job description matching
   const handleAnalyzeJobMatch = (e) => {
     e.preventDefault();
@@ -193,9 +210,15 @@ function ResumeCenter() {
     const descLower = jobDescription.toLowerCase();
     const resumeSkills = (analysis.skills || []).map(s => s.toLowerCase());
 
+    const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Scan for tech keywords in the job description
     const descSkills = TECH_SKILLS_DB.filter(skill => {
-      const pattern = new RegExp(`\\b${skill}\\b`, 'i');
+      const hasWordCharStart = /^\w/.test(skill);
+      const hasWordCharEnd = /\w$/.test(skill);
+      const boundaryStart = hasWordCharStart ? '\\b' : '(?:^|\\s)';
+      const boundaryEnd = hasWordCharEnd ? '\\b' : '(?:$|\\s)';
+      const pattern = new RegExp(`${boundaryStart}${escapeRegExp(skill)}${boundaryEnd}`, 'i');
       return pattern.test(descLower);
     });
 
@@ -300,15 +323,13 @@ function ResumeCenter() {
               {activeResume ? 'Replace Resume' : 'Upload Resume'}
             </button>
             {activeResume && (
-              <a 
-                href={resumeService.getDownloadUrl(activeResume.id)} 
-                target="_blank" 
-                rel="noreferrer" 
+              <button 
+                onClick={() => handleDownloadResume(activeResume.id, activeResume.filename)} 
                 className="btn btn-secondary" 
-                style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem', textDecoration: 'none' }}
+                style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem' }}
               >
                 Download PDF
-              </a>
+              </button>
             )}
           </div>
         </div>
@@ -491,15 +512,13 @@ function ResumeCenter() {
                     </td>
                     <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                        <a 
-                          href={resumeService.getDownloadUrl(item.id)} 
-                          target="_blank" 
-                          rel="noreferrer" 
+                        <button 
+                          onClick={() => handleDownloadResume(item.id, item.filename)} 
                           className="btn btn-secondary" 
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', textDecoration: 'none' }}
+                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
                         >
                           Download
-                        </a>
+                        </button>
                         <button 
                           onClick={() => handleDelete(item.id)} 
                           className="btn btn-secondary" 

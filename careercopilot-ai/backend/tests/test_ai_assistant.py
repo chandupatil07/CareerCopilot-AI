@@ -76,23 +76,49 @@ def test_get_conversation_messages_idor_protection(mock_repo_get, mock_db):
     assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
     assert "Access denied" in exc_info.value.detail
 
+@patch("app.services.ai_assistant.GeminiService.generate_response")
 @patch.object(chat_session_repo, "get")
 @patch.object(chat_message_repo, "create")
-def test_save_message_success(mock_repo_create_msg, mock_repo_get, mock_db):
-    """Verify message persistence handles valid roles and updates updated_at on parent session"""
+def test_save_message_success(mock_repo_create_msg, mock_repo_get, mock_gemini_generate, mock_db):
+    """Verify message persistence handles valid roles, runs Gemini loop, and returns assistant message"""
     mock_session = MagicMock(spec=ChatSession, id=MOCK_SESSION_ID, user_id=MOCK_USER_ID)
     mock_repo_get.return_value = mock_session
     
-    mock_msg = MagicMock(spec=ChatMessage, id=1, session_id=MOCK_SESSION_ID, role="user", content="How is it?")
-    mock_repo_create_msg.return_value = mock_msg
+    mock_user_msg = MagicMock(spec=ChatMessage, id=1, session_id=MOCK_SESSION_ID, role="user", content="How is it?")
+    mock_assistant_msg = MagicMock(spec=ChatMessage, id=2, session_id=MOCK_SESSION_ID, role="assistant", content="Mock Gemini response")
+    mock_repo_create_msg.side_effect = [mock_user_msg, mock_assistant_msg]
+    
+    mock_gemini_generate.return_value = "Mock Gemini response"
     
     payload = ChatMessageCreate(role="user", content="How is it?")
     msg = AIAssistantService.save_message(mock_db, user_id=MOCK_USER_ID, session_id=MOCK_SESSION_ID, obj_in=payload)
     
-    assert msg.content == "How is it?"
+    assert msg.role == "assistant"
+    assert msg.content == "Mock Gemini response"
+    mock_repo_get.assert_called_once_with(mock_db, id=MOCK_SESSION_ID)
+    assert mock_repo_create_msg.call_count == 2
+    mock_gemini_generate.assert_called_once()
+    mock_db.commit.assert_called()
+
+@patch.object(chat_session_repo, "get")
+@patch.object(chat_message_repo, "create")
+def test_save_message_assistant_bypass(mock_repo_create_msg, mock_repo_get, mock_db):
+    """Verify assistant messages bypass Gemini and save directly"""
+    mock_session = MagicMock(spec=ChatSession, id=MOCK_SESSION_ID, user_id=MOCK_USER_ID)
+    mock_repo_get.return_value = mock_session
+    
+    mock_msg = MagicMock(spec=ChatMessage, id=1, session_id=MOCK_SESSION_ID, role="assistant", content="Direct reply")
+    mock_repo_create_msg.return_value = mock_msg
+    
+    payload = ChatMessageCreate(role="assistant", content="Direct reply")
+    msg = AIAssistantService.save_message(mock_db, user_id=MOCK_USER_ID, session_id=MOCK_SESSION_ID, obj_in=payload)
+    
+    assert msg.role == "assistant"
+    assert msg.content == "Direct reply"
     mock_repo_get.assert_called_once_with(mock_db, id=MOCK_SESSION_ID)
     mock_repo_create_msg.assert_called_once()
     mock_db.commit.assert_called()
+
 
 @patch.object(chat_session_repo, "get")
 def test_save_message_invalid_role(mock_repo_get, mock_db):
@@ -132,3 +158,60 @@ def test_delete_conversation_idor_protection(mock_repo_get, mock_db):
         
     assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
     assert "Access denied" in exc_info.value.detail
+
+@patch.object(chat_session_repo, "get")
+@patch.object(chat_session_repo, "update")
+def test_update_conversation_success(mock_repo_update, mock_repo_get, mock_db):
+    """Verify that renaming a conversation updates the title and checks session owner"""
+    mock_session = MagicMock(spec=ChatSession, id=MOCK_SESSION_ID, user_id=MOCK_USER_ID, title="Old Title")
+    mock_repo_get.return_value = mock_session
+    
+    updated_session = MagicMock(spec=ChatSession, id=MOCK_SESSION_ID, user_id=MOCK_USER_ID, title="New Title")
+    mock_repo_update.return_value = updated_session
+    
+    payload = ChatSessionCreate(title="New Title")
+    result = AIAssistantService.update_conversation(mock_db, user_id=MOCK_USER_ID, session_id=MOCK_SESSION_ID, obj_in=payload)
+    
+    assert result.title == "New Title"
+    mock_repo_get.assert_called_once_with(mock_db, id=MOCK_SESSION_ID)
+    mock_repo_update.assert_called_once_with(mock_db, db_obj=mock_session, obj_in=payload)
+
+@patch.object(chat_session_repo, "get")
+def test_update_conversation_idor_protection(mock_repo_get, mock_db):
+    """Verify that renaming another user's conversation is blocked with HTTP 403 Forbidden"""
+    mock_session = MagicMock(spec=ChatSession, id=MOCK_SESSION_ID, user_id=MOCK_OTHER_USER_ID, title="Old Title")
+    mock_repo_get.return_value = mock_session
+    
+    payload = ChatSessionCreate(title="New Title")
+    with pytest.raises(HTTPException) as exc_info:
+        AIAssistantService.update_conversation(mock_db, user_id=MOCK_USER_ID, session_id=MOCK_SESSION_ID, obj_in=payload)
+        
+    assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
+    assert "Access denied" in exc_info.value.detail
+
+@patch.object(chat_session_repo, "get")
+def test_update_conversation_not_found(mock_repo_get, mock_db):
+    """Verify that renaming a missing conversation raises HTTP 404 Not Found"""
+    mock_repo_get.return_value = None
+    
+    payload = ChatSessionCreate(title="New Title")
+    with pytest.raises(HTTPException) as exc_info:
+        AIAssistantService.update_conversation(mock_db, user_id=MOCK_USER_ID, session_id=MOCK_SESSION_ID, obj_in=payload)
+        
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert "Conversational chat session not found" in exc_info.value.detail
+
+@patch.object(chat_session_repo, "get")
+@patch.object(chat_message_repo, "list_by_session")
+def test_get_conversation_messages_ordering(mock_repo_list_msg, mock_repo_get, mock_db):
+    """Verify messages inside conversation are retrieved in chronological ascending order"""
+    mock_session = MagicMock(spec=ChatSession, id=MOCK_SESSION_ID, user_id=MOCK_USER_ID)
+    mock_repo_get.return_value = mock_session
+    
+    msg_oldest = MagicMock(spec=ChatMessage, id=1, created_at=datetime(2026, 1, 1))
+    msg_newest = MagicMock(spec=ChatMessage, id=2, created_at=datetime(2026, 1, 2))
+    mock_repo_list_msg.return_value = [msg_oldest, msg_newest]
+    
+    messages = AIAssistantService.get_conversation_messages(mock_db, user_id=MOCK_USER_ID, session_id=MOCK_SESSION_ID)
+    assert len(messages) == 2
+    assert messages[0].created_at < messages[1].created_at

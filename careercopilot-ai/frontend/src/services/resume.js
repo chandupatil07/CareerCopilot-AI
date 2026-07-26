@@ -55,9 +55,17 @@ export const resumeService = {
     return response.data;
   },
 
+  async downloadResume(id) {
+    const response = await api.get(`/resumes/${id}/download`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
   getDownloadUrl(id) {
     return `${import.meta.env.VITE_API_BASE_URL}/resumes/${id}/download`;
   }
 };
 
 export default resumeService;
+
