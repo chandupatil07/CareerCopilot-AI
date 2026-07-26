@@ -37,6 +37,8 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+logger.info(f"CORS origins configured: {settings.BACKEND_CORS_ORIGINS}")
+
 # Apply CORS middleware policies
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
